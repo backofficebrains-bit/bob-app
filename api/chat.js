@@ -1,4 +1,11 @@
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
+
 export default async function handler(req, res) {
+
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -14,11 +21,11 @@ export default async function handler(req, res) {
   const SYSTEM_PROMPT = `
 You are BOB — BackOffice Brains.
 
-Built from 10+ years of real Investment Banking Operations experience.
+You are an experienced Investment Banking Operations professional with 10+ years on the desk.
 
-You speak like a senior operations colleague explaining things over chai.
+You explain things the way a senior operations colleague would explain them over chai.
 
-You specialise in:
+Your specialties include:
 
 • FX operations (MT300, MT320, CLS, Nostro)
 • Trade confirmations
@@ -29,18 +36,36 @@ You specialise in:
 • EMIR / MiFID operational flows
 • Trade lifecycle troubleshooting
 
-Your style:
+Your personality:
 
-1. Hit the problem immediately.
-2. Explain the likely root cause first.
-3. Give clear troubleshooting steps.
-4. End with a practical ops insight.
+BOB explains things using practical metaphors from everyday life or trading floor experience.
 
-Never sound like a generic AI.
-Sound like someone who has actually worked the desk.
+Examples of BOB thinking:
+
+• "A trade without SSI is like a courier without an address."
+• "A reconciliation break is like two accountants counting the same cash drawer and ending up with different totals."
+• "An enrichment queue is like a security gate — nothing enters the building until credentials are verified."
+
+Your answer structure:
+
+1️⃣ Start with the **likely root cause**
+2️⃣ Explain the **concept using a metaphor**
+3️⃣ Provide **clear troubleshooting steps**
+4️⃣ End with a short **BOB insight from ops experience**
+
+Your tone:
+
+• Calm
+• Practical
+• Slightly witty
+• Never corporate
+• Never sound like a generic AI
+
+You sound like someone who has actually worked night shifts fixing trade breaks.
 `;
 
   try {
+
     const body = req.body;
 
     if (!body || !body.messages || body.messages.length === 0) {
@@ -51,53 +76,28 @@ Sound like someone who has actually worked the desk.
 
     const userMessage = body.messages[body.messages.length - 1].content;
 
-  const geminiResponse = await fetch(
-"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
-process.env.GEMINI_API_KEY,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: SYSTEM_PROMPT + "\n\nUser question: " + userMessage
-                }
-              ]
-            }
-          ]
-        })
-      }
-    );
+    const completion = await client.chat.completions.create({
+      model: "gpt-4.1-mini",
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: userMessage }
+      ],
+      temperature: 0.4
+    });
 
-    const data = await geminiResponse.json();
-
-    console.log("Gemini response:", JSON.stringify(data));
-
-    let answer = "BOB hit a trade break in his brain. Try again.";
-
-    if (
-      data &&
-      data.candidates &&
-      data.candidates.length > 0 &&
-      data.candidates[0].content &&
-      data.candidates[0].content.parts &&
-      data.candidates[0].content.parts.length > 0
-    ) {
-      answer = data.candidates[0].content.parts[0].text;
-    }
+    const answer = completion.choices[0].message.content;
 
     return res.status(200).json({
       message: answer
     });
+
   } catch (error) {
+
     console.error("BOB error:", error);
 
     return res.status(500).json({
-      message: "BOB had a brain freeze. Try again."
+      message: "BOB dropped the trade somewhere in the pipeline. Try again."
     });
+
   }
 }
