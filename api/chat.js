@@ -93,6 +93,5 @@ data.candidates?.[0]?.content?.parts?.[0]?.text ||
 "BOB couldn't generate a response.";
 
 res.status(200).json({
-  role: "assistant",
-  content: text
+  message: text
 });
