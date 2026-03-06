@@ -65,11 +65,20 @@ If someone asks outside IB operations, respond:
       }
     );
 
-    const data = await response.json();
+    console.log("Gemini response:", JSON.stringify(data));
 
-    const answer =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "BOB hit a trade break in his brain. Try again.";
+   let answer = "BOB hit a trade break in his brain. Try again.";
+
+if (
+  data &&
+  data.candidates &&
+  data.candidates.length > 0 &&
+  data.candidates[0].content &&
+  data.candidates[0].content.parts &&
+  data.candidates[0].content.parts.length > 0
+) {
+  answer = data.candidates[0].content.parts[0].text;
+}
 
     return res.status(200).json({
       message: answer
