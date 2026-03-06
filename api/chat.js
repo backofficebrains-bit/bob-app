@@ -42,28 +42,57 @@ TONE RULES:
   try {
     const { messages } = req.body;
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        system: SYSTEM_PROMPT,
-        messages,
-      }),
-    });
+const userMessage = messages[messages.length - 1].content;
 
-    const data = await response.json();
+const response = await fetch(
+`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+{
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: SYSTEM_PROMPT + "\n\nUser question: " + userMessage }]
+      }
+    ]
+  })
+});
 
-    if (data.error) return res.status(500).json({ error: data.error.message });
+const data = await response.json();
 
-    const reply = data.content?.map((b) => b.text || "").join("\n") || "BOB hit a snag. Try again.";
-    res.status(200).json({ reply });
-  } catch (err) {
-    res.status(500).json({ error: "BOB ran into an issue. Try again." });
-  }
-}
+const text =
+data.candidates?.[0]?.content?.parts?.[0]?.text ||
+"BOB couldn't generate a response.";
+
+    const userMessage = messages[messages.length - 1].content;
+
+const response = await fetch(
+`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+{
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: SYSTEM_PROMPT + "\n\nUser question: " + userMessage }]
+      }
+    ]
+  })
+});
+
+const data = await response.json();
+
+const text =
+data.candidates?.[0]?.content?.parts?.[0]?.text ||
+"BOB couldn't generate a response.";
+
+res.status(200).json({
+  role: "assistant",
+  content: text
+});
