@@ -95,3 +95,4 @@ data.candidates?.[0]?.content?.parts?.[0]?.text ||
 res.status(200).json({
   message: text
 });
+}
