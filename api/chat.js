@@ -81,13 +81,13 @@ The user should feel like a helpful senior colleague just explained something cl
     const userMessage = body.messages[body.messages.length - 1].content;
 
     const completion = await groq.chat.completions.create({
-      model: "llama3-70b-8192",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: userMessage }
-      ],
-      temperature: 0.6
-    });
+  model: "llama-3.3-70b-versatile",
+  messages: [
+    { role: "system", content: SYSTEM_PROMPT },
+    { role: "user", content: userMessage }
+  ],
+  temperature: 0.6
+});
 
     const answer = completion.choices[0].message.content;
 
