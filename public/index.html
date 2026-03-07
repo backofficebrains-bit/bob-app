@@ -1,147 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOB — BackOffice Brains</title>
+
+<style>
+body{
+background:#0b0b11;
+color:#e8e8e8;
+font-family:monospace;
+margin:0;
+display:flex;
+flex-direction:column;
+height:100vh;
+}
+
+header{
+padding:16px;
+border-bottom:1px solid #222;
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+header h1{
+margin:0;
+font-size:18px;
+color:#ff6b2b;
+}
+
+#chat{
+flex:1;
+overflow-y:auto;
+padding:20px;
+}
+
+.msg{
+margin-bottom:14px;
+}
+
+.user{
+color:#fff;
+}
+
+.bob{
+color:#ffb28c;
+}
+
+#input{
+display:flex;
+border-top:1px solid #222;
+padding:12px;
+gap:10px;
+}
+
+textarea{
+flex:1;
+background:#14141d;
+border:1px solid #333;
+color:white;
+padding:8px;
+border-radius:6px;
+resize:none;
+}
+
+button{
+background:#ff6b2b;
+border:none;
+color:white;
+padding:10px 14px;
+border-radius:6px;
+cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+🧠 <h1>BOB — BackOffice Brains</h1>
+</header>
+
+<div id="chat"></div>
+
+<div id="input">
+<textarea id="msg" rows="1" placeholder="Ask BOB about IB Ops..."></textarea>
+<button id="send-btn">Send</button>
+</div>
+
 <script>
-  const chatEl = document.getElementById('chat');
-  const msgEl  = document.getElementById('msg');
-  const btnEl  = document.getElementById('send-btn');
+const chatEl = document.getElementById('chat');
+const msgEl = document.getElementById('msg');
+const btnEl = document.getElementById('send-btn');
 
-  let history = [];
-  let loading = false;
+let history = [];
+let loading = false;
 
-  msgEl.addEventListener('input', () => {
-    btnEl.disabled = !msgEl.value.trim() || loading;
-  });
+btnEl.onclick = sendMessage;
 
-  function autoResize(el) {
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
-  }
+async function sendMessage(){
 
-  function handleKey(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      if (!btnEl.disabled) sendMessage();
-    }
-  }
+const text = msgEl.value.trim();
+if(!text || loading) return;
 
-  function ask(btn) {
-    const q = btn.textContent.replace(/^→\s*/, '').trim();
-    msgEl.value = q;
-    autoResize(msgEl);
-    btnEl.disabled = false;
-    sendMessage();
-  }
+loading=true;
+msgEl.value="";
 
-  function scrollBottom() {
-    chatEl.scrollTop = chatEl.scrollHeight;
-  }
+addBubble("user",text);
 
-  function addBubble(role, text) {
-    const welcome = document.getElementById('welcome');
-    if (welcome) welcome.remove();
+history.push({
+role:"user",
+content:text
+});
 
-    const row = document.createElement('div');
-    row.className = `msg-row ${role}`;
+try{
 
-    const av = document.createElement('div');
-    av.className = `avatar ${role === 'assistant' ? 'bob' : 'user'}`;
-    av.textContent = role === 'assistant' ? '🧠' : '👤';
+const res = await fetch("/api/chat",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+messages:history
+})
+});
 
-    const bub = document.createElement('div');
-    bub.className = `bubble ${role === 'assistant' ? 'bob' : 'user'}`;
-    bub.textContent = text;
+const data = await res.json();
 
-    row.appendChild(av);
-    row.appendChild(bub);
-    chatEl.appendChild(row);
+const reply = data.message || "BOB hit a snag.";
 
-    scrollBottom();
-    return bub;
-  }
+addBubble("bob",reply);
 
-  function addTyping() {
-    const row = document.createElement('div');
-    row.className = 'msg-row';
-    row.id = 'typing-row';
+history.push({
+role:"assistant",
+content:reply
+});
 
-    const av = document.createElement('div');
-    av.className = 'avatar bob';
-    av.textContent = '🧠';
+}catch(e){
 
-    const bub = document.createElement('div');
-    bub.className = 'bubble bob';
-    bub.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+addBubble("bob","Network issue. Try again.");
 
-    row.appendChild(av);
-    row.appendChild(bub);
-    chatEl.appendChild(row);
+}
 
-    scrollBottom();
-  }
+loading=false;
+}
 
-  function removeTyping() {
-    const t = document.getElementById('typing-row');
-    if (t) t.remove();
-  }
+function addBubble(role,text){
 
-  async function sendMessage() {
+const div=document.createElement("div");
+div.className="msg "+role;
+div.textContent=(role==="user"?"You: ":"BOB: ")+text;
 
-    const text = msgEl.value.trim();
-    if (!text || loading) return;
+chatEl.appendChild(div);
+chatEl.scrollTop=chatEl.scrollHeight;
 
-    loading = true;
-    btnEl.disabled = true;
-
-    msgEl.value = '';
-    msgEl.style.height = 'auto';
-
-    addBubble('user', text);
-
-    history.push({
-      role: 'user',
-      content: text
-    });
-
-    addTyping();
-
-    try {
-
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          messages: history
-        })
-      });
-
-      const data = await res.json();
-
-      removeTyping();
-
-      const reply =
-        data.message ||
-        data.error ||
-        'BOB hit a snag. Try again.';
-
-      addBubble('assistant', reply);
-
-      history.push({
-        role: 'assistant',
-        content: reply
-      });
-
-    } catch (err) {
-
-      removeTyping();
-
-      addBubble(
-        'assistant',
-        'Network issue. BOB is still here — try again.'
-      );
-
-    }
-
-    loading = false;
-    msgEl.focus();
-  }
+}
 </script>
+
+</body>
+</html>
