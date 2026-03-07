@@ -30,7 +30,7 @@ You specialise in:
 
 • FX operations (MT300, MT320, CLS, Nostro)
 • Trade confirmations
-• Matching platforms (DTCC, MarkitWire)
+• Matching platforms (DTCC, MarkitWire, CMS)
 • Settlement failures
 • Reconciliation breaks
 • Corporate actions
