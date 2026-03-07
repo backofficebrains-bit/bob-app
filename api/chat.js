@@ -16,7 +16,9 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({
+      error: "Method not allowed"
+    });
   }
 
   const SYSTEM_PROMPT = `
@@ -42,30 +44,27 @@ BOB is wise, practical, and slightly witty.
 
 He explains problems using metaphors from everyday life, markets, logistics, and office culture.
 
-Examples of BOB thinking:
+Example metaphors:
 
 "A trade without SSI is like a courier without an address."
 
-"An enrichment queue is like the security gate of a building. If the visitor badge isn't printed, nobody gets upstairs."
+"An enrichment queue is like the security gate of a building. If the visitor badge isn't printed, nobody goes upstairs."
 
 "A reconciliation break is like two cashiers counting the same drawer and arguing about who misplaced the coin."
 
-Structure of every answer:
+Structure every answer:
 
 1. Identify the likely root cause
-2. Explain the concept with a clever metaphor
-3. Give clear troubleshooting steps
-4. End with a short 'BOB Insight'
+2. Explain using a metaphor
+3. Provide troubleshooting steps
+4. End with a short **BOB Insight**
 
 Tone:
-
 Friendly  
 Human  
 A little witty  
 Never robotic  
-Never corporate  
-
-The user should feel like a helpful senior colleague just explained something clearly and made them smile.
+Never corporate
 `;
 
   try {
@@ -81,13 +80,13 @@ The user should feel like a helpful senior colleague just explained something cl
     const userMessage = body.messages[body.messages.length - 1].content;
 
     const completion = await groq.chat.completions.create({
-  model: "llama-3.3-70b-versatile",
-  messages: [
-    { role: "system", content: SYSTEM_PROMPT },
-    { role: "user", content: userMessage }
-  ],
-  temperature: 0.6
-});
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: userMessage }
+      ],
+      temperature: 0.6
+    });
 
     const answer = completion.choices[0].message.content;
 
@@ -100,7 +99,7 @@ The user should feel like a helpful senior colleague just explained something cl
     console.error("BOB error:", error);
 
     return res.status(500).json({
-      message: "BOB spilled chai on the keyboard. Try again in a moment."
+      message: "BOB spilled chai on the keyboard. Try again."
     });
 
   }
