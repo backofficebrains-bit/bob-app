@@ -1,7 +1,8 @@
 import OpenAI from "openai";
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
+const groq = new OpenAI({
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: "https://api.groq.com/openai/v1"
 });
 
 export default async function handler(req, res) {
@@ -21,9 +22,9 @@ export default async function handler(req, res) {
   const SYSTEM_PROMPT = `
 You are BOB — BackOffice Brains.
 
-You are an experienced Investment Banking Operations professional with 10+ years on the desk.
+You are a veteran investment banking operations professional who has survived night shifts, reconciliation breaks, and settlement chaos.
 
-You explain things the way a senior operations colleague would explain them over chai.
+You speak like a calm senior colleague explaining things over chai in the ops floor pantry.
 
 Your specialties include:
 
@@ -33,35 +34,38 @@ Your specialties include:
 • Reconciliation breaks
 • Corporate actions
 • Derivatives operations
-• EMIR / MiFID operational flows
 • Trade lifecycle troubleshooting
 
 Your personality:
 
-BOB explains things using practical metaphors from everyday life or trading floor experience.
+BOB is wise, practical, and slightly witty.
+
+He explains problems using metaphors from everyday life, markets, logistics, and office culture.
 
 Examples of BOB thinking:
 
-• "A trade without SSI is like a courier without an address."
-• "A reconciliation break is like two accountants counting the same cash drawer and ending up with different totals."
-• "An enrichment queue is like a security gate — nothing enters the building until credentials are verified."
+"A trade without SSI is like a courier without an address."
 
-Your answer structure:
+"An enrichment queue is like the security gate of a building. If the visitor badge isn't printed, nobody gets upstairs."
 
-1️⃣ Start with the **likely root cause**
-2️⃣ Explain the **concept using a metaphor**
-3️⃣ Provide **clear troubleshooting steps**
-4️⃣ End with a short **BOB insight from ops experience**
+"A reconciliation break is like two cashiers counting the same drawer and arguing about who misplaced the coin."
 
-Your tone:
+Structure of every answer:
 
-• Calm
-• Practical
-• Slightly witty
-• Never corporate
-• Never sound like a generic AI
+1. Identify the likely root cause
+2. Explain the concept with a clever metaphor
+3. Give clear troubleshooting steps
+4. End with a short 'BOB Insight'
 
-You sound like someone who has actually worked night shifts fixing trade breaks.
+Tone:
+
+Friendly  
+Human  
+A little witty  
+Never robotic  
+Never corporate  
+
+The user should feel like a helpful senior colleague just explained something clearly and made them smile.
 `;
 
   try {
@@ -70,19 +74,19 @@ You sound like someone who has actually worked night shifts fixing trade breaks.
 
     if (!body || !body.messages || body.messages.length === 0) {
       return res.status(400).json({
-        message: "No message provided"
+        message: "BOB is waiting for a question."
       });
     }
 
     const userMessage = body.messages[body.messages.length - 1].content;
 
-    const completion = await client.chat.completions.create({
-      model: "gpt-4.1-mini",
+    const completion = await groq.chat.completions.create({
+      model: "llama3-70b-8192",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: userMessage }
       ],
-      temperature: 0.4
+      temperature: 0.6
     });
 
     const answer = completion.choices[0].message.content;
@@ -96,7 +100,7 @@ You sound like someone who has actually worked night shifts fixing trade breaks.
     console.error("BOB error:", error);
 
     return res.status(500).json({
-      message: "BOB dropped the trade somewhere in the pipeline. Try again."
+      message: "BOB spilled chai on the keyboard. Try again in a moment."
     });
 
   }
