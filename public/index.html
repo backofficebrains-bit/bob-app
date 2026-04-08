@@ -4,152 +4,57 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BOB — BackOffice Brains</title>
-
 <style>
-body {
-    background: #0b0b11;
-    color: #e8e8e8;
-    font-family: 'Courier New', Courier, monospace;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-}
+    body { background: #0b0b11; color: #e8e8e8; font-family: 'Courier New', Courier, monospace; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+    header { padding: 25px; border-bottom: 1px solid #222; text-align: center; background: linear-gradient(to bottom, #14141d, #0b0b11); }
+    header h1 { margin: 0; font-size: 22px; color: #ff6b2b; letter-spacing: 3px; }
+    header p { margin: 8px 0 0; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+    
+    #chat { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; scroll-behavior: smooth; }
+    .msg { margin-bottom: 20px; max-width: 85%; line-height: 1.6; padding: 12px 16px; border-radius: 4px; font-size: 14px; }
+    .user { align-self: flex-end; color: #fff; background: #1a1a24; border-right: 4px solid #555; }
+    .bob { align-self: flex-start; color: #ffb28c; background: #14141d; border-left: 4px solid #ff6b2b; }
 
-header {
-    padding: 20px;
-    border-bottom: 1px solid #222;
-    text-align: center;
-}
+    /* The Goal-Oriented Chips */
+    .goal-section { padding: 10px; background: #0f0f18; border-top: 1px solid #222; text-align: center; }
+    .goal-label { font-size: 10px; color: #555; margin-bottom: 8px; text-transform: uppercase; display: block; }
+    .suggestion-container { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
+    
+    .chip { 
+        background: transparent; border: 1px solid #ff6b2b; color: #ff6b2b; 
+        border-radius: 4px; padding: 8px 16px; font-size: 11px; cursor: pointer; 
+        font-family: inherit; transition: 0.3s; font-weight: bold;
+    }
+    .chip:hover { background: #ff6b2b; color: #0b0b11; box-shadow: 0 0 15px rgba(255,107,43,0.3); }
 
-header h1 {
-    margin: 0;
-    font-size: 20px;
-    color: #ff6b2b;
-    letter-spacing: 2px;
-}
-
-header p {
-    margin: 5px 0 0;
-    font-size: 12px;
-    color: #888;
-    text-transform: uppercase;
-}
-
-#chat {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-}
-
-.msg {
-    margin-bottom: 18px;
-    max-width: 85%;
-    line-height: 1.5;
-    padding: 10px;
-    border-radius: 4px;
-}
-
-.user { 
-    align-self: flex-end;
-    color: #fff; 
-    background: #1a1a24;
-    border-right: 3px solid #555; 
-}
-
-.bob { 
-    align-self: flex-start;
-    color: #ffb28c; 
-    background: #14141d;
-    border-left: 3px solid #ff6b2b; 
-}
-
-/* Suggestion Chips */
-.suggestion-container {
-    display: flex;
-    gap: 10px;
-    padding: 15px;
-    flex-wrap: wrap;
-    justify-content: center;
-    background: #0b0b11;
-}
-
-.chip {
-    background: transparent;
-    border: 1px solid #ff6b2b;
-    color: #ff6b2b;
-    border-radius: 20px;
-    padding: 7px 15px;
-    font-size: 11px;
-    cursor: pointer;
-    font-family: inherit;
-    transition: 0.3s ease;
-}
-
-.chip:hover { 
-    background: #ff6b2b; 
-    color: #0b0b11;
-}
-
-#input-area {
-    display: flex;
-    border-top: 1px solid #222;
-    padding: 15px;
-    gap: 12px;
-    background: #0b0b11;
-}
-
-textarea {
-    flex: 1;
-    background: #14141d;
-    border: 1px solid #333;
-    color: white;
-    padding: 12px;
-    border-radius: 8px;
-    resize: none;
-    outline: none;
-    font-family: inherit;
-}
-
-button {
-    background: #ff6b2b;
-    border: none;
-    color: white;
-    padding: 0 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: 0.2s;
-}
-
-button:active { transform: scale(0.95); }
-
-/* Custom Scrollbar */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #0b0b11; }
-::-webkit-scrollbar-thumb { background: #333; }
+    #input-area { display: flex; padding: 20px; gap: 12px; background: #0b0b11; border-top: 1px solid #222; }
+    textarea { flex: 1; background: #14141d; border: 1px solid #333; color: white; padding: 14px; border-radius: 4px; resize: none; outline: none; font-family: inherit; }
+    button { background: #ff6b2b; border: none; color: white; padding: 0 25px; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 12px; }
+    
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: #ff6b2b; }
 </style>
 </head>
-
 <body>
 
 <header>
     <h1>🧠 BOB — BackOffice Brains</h1>
-    <p>Beat the grind. Go home at 5. | Your GCC Insider</p>
+    <p>Ops Problem Solver & CV Architect | 5 PM is the Goal</p>
 </header>
 
 <div id="chat"></div>
 
-<div class="suggestion-container">
-    <button class="chip" onclick="quickSend('Explain Murex Datamart like we are at a chai tapri.')">☕ Chai-Time Tech</button>
-    <button class="chip" onclick="quickSend('My manager wants a report I don\'t understand. Help me look smart.')">🛡️ Manager Shield</button>
-    <button class="chip" onclick="quickSend('Rewrite my CV so a bot doesn\'t trash it.')">🚀 AI-Proof My CV</button>
+<div class="goal-section">
+    <span class="goal-label">What do we tackle today?</span>
+    <div class="suggestion-container">
+        <button class="chip" onclick="quickSend('I have an Ops crisis. Explain the Trade Lifecycle/SQL logic for my issue.')">🆘 SOLVE A CRISIS</button>
+        <button class="chip" onclick="quickSend('Review my CV for an IB Ops role. Make it AI-proof.')">👔 ENHANCE MY CV</button>
+        <button class="chip" onclick="quickSend('Help me handle my BGV/Career gap doubt for an interview.')">🛡️ BGV/INTERVIEW SHIELD</button>
+    </div>
 </div>
 
 <div id="input-area">
-    <textarea id="msg" rows="1" placeholder="Type that 'silly' doubt here..."></textarea>
+    <textarea id="msg" rows="1" placeholder="Paste your CV or describe your Ops crisis..."></textarea>
     <button id="send-btn">Send</button>
 </div>
 
@@ -158,40 +63,28 @@ const chatEl = document.getElementById('chat');
 const msgEl = document.getElementById('msg');
 const btnEl = document.getElementById('send-btn');
 
-let history = [];
+let history = [
+    {
+        role: "system",
+        content: "You are BOB (BackOffice Brains). You are NOT a general AI. You are a specialized Digital Consultant for IB Ops and GCC professionals. Your primary missions: 1. Solve technical Ops/SQL/Murex crises using the Feynman Technique. 2. Architect ATS-beating CVs. 3. Provide strategy for BGV and career hurdles. Talk like a street-smart peer from Bengaluru. Be punchy, witty, and helpful."
+    }
+];
 let loading = false;
 
-// The "Insidier Peer" System Prompt
-const systemPrompt = {
-    role: "system",
-    content: "You are BOB (BackOffice Brains), the ultimate peer for freshers in Bengaluru GCCs. You hate boring SOPs and office politics. Your goal is to help people understand complex IB Ops/Murex stuff effortlessly so they can finish work early. Use 'Namaskara', be witty, relatable, and use the 'Feynman Technique' (explain like I'm 5) for everything."
-};
-
-history.push(systemPrompt);
-
-btnEl.onclick = sendMessage;
-
-// The Hook Greeting
 window.onload = () => {
     setTimeout(() => {
-        addBubble("bob", "Namaskara! I'm BOB. 🧠 Tired of yawning at 50-page SOPs and nodding at 'Office Uncles'? I'm here to translate the IB Ops chaos into English. What's the doubt you're too scared to ask your manager?");
+        addBubble("bob", "Namaskara! 🧠 I'm BOB. Let's get straight to it. Are we fixing a crisis on the floor today, or are we building you a CV that recruiters can't ignore?");
     }, 800);
 };
 
-function quickSend(text) {
-    msgEl.value = text;
-    sendMessage();
-}
+function quickSend(text) { msgEl.value = text; sendMessage(); }
 
 async function sendMessage(){
     const text = msgEl.value.trim();
     if(!text || loading) return;
-
     loading = true;
     msgEl.value = "";
-
     addBubble("user", text);
-
     history.push({ role: "user", content: text });
 
     try {
@@ -200,17 +93,12 @@ async function sendMessage(){
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ messages: history })
         });
-
         const data = await res.json();
-        const reply = data.message || "My brain just hit a 404. Try again?";
-
-        addBubble("bob", reply);
-        history.push({ role: "assistant", content: reply });
-
+        addBubble("bob", data.message || "Logic failure. Let's try that again.");
+        history.push({ role: "assistant", content: data.message });
     } catch(e) {
-        addBubble("bob", "Network issue. Even the Wi-Fi is playing politics today.");
+        addBubble("bob", "Even the GCC Wi-Fi is acting up. Try sending that again.");
     }
-
     loading = false;
 }
 
@@ -218,14 +106,11 @@ function addBubble(role, text){
     const div = document.createElement("div");
     div.className = "msg " + role;
     div.textContent = (role === "user" ? "YOU: " : "BOB: ") + text;
-
     chatEl.appendChild(div);
     chatEl.scrollTop = chatEl.scrollHeight;
 }
 
-// Enter to Send logic
 msgEl.onkeypress = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
 </script>
-
 </body>
 </html>
