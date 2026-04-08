@@ -9,7 +9,7 @@
 body {
     background: #0b0b11;
     color: #e8e8e8;
-    font-family: monospace;
+    font-family: 'Courier New', Courier, monospace;
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -17,45 +17,60 @@ body {
 }
 
 header {
-    padding: 16px;
+    padding: 20px;
     border-bottom: 1px solid #222;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
+    text-align: center;
 }
 
 header h1 {
     margin: 0;
-    font-size: 18px;
+    font-size: 20px;
     color: #ff6b2b;
+    letter-spacing: 2px;
 }
 
 header p {
-    margin: 0;
+    margin: 5px 0 0;
     font-size: 12px;
     color: #888;
+    text-transform: uppercase;
 }
 
 #chat {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 .msg {
-    margin-bottom: 14px;
+    margin-bottom: 18px;
+    max-width: 85%;
     line-height: 1.5;
+    padding: 10px;
+    border-radius: 4px;
 }
 
-.user { color: #fff; border-left: 2px solid #555; padding-left: 10px; }
-.bob { color: #ffb28c; border-left: 2px solid #ff6b2b; padding-left: 10px; }
+.user { 
+    align-self: flex-end;
+    color: #fff; 
+    background: #1a1a24;
+    border-right: 3px solid #555; 
+}
 
-/* Suggestions Styling */
+.bob { 
+    align-self: flex-start;
+    color: #ffb28c; 
+    background: #14141d;
+    border-left: 3px solid #ff6b2b; 
+}
+
+/* Suggestion Chips */
 .suggestion-container {
     display: flex;
-    gap: 8px;
-    padding: 10px;
+    gap: 10px;
+    padding: 15px;
     flex-wrap: wrap;
     justify-content: center;
     background: #0b0b11;
@@ -65,21 +80,25 @@ header p {
     background: transparent;
     border: 1px solid #ff6b2b;
     color: #ff6b2b;
-    border-radius: 4px;
-    padding: 5px 10px;
+    border-radius: 20px;
+    padding: 7px 15px;
     font-size: 11px;
     cursor: pointer;
-    font-family: monospace;
-    transition: 0.3s;
+    font-family: inherit;
+    transition: 0.3s ease;
 }
 
-.chip:hover { background: rgba(255, 107, 43, 0.1); }
+.chip:hover { 
+    background: #ff6b2b; 
+    color: #0b0b11;
+}
 
-#input {
+#input-area {
     display: flex;
     border-top: 1px solid #222;
-    padding: 12px;
-    gap: 10px;
+    padding: 15px;
+    gap: 12px;
+    background: #0b0b11;
 }
 
 textarea {
@@ -87,21 +106,30 @@ textarea {
     background: #14141d;
     border: 1px solid #333;
     color: white;
-    padding: 8px;
-    border-radius: 6px;
+    padding: 12px;
+    border-radius: 8px;
     resize: none;
     outline: none;
+    font-family: inherit;
 }
 
 button {
     background: #ff6b2b;
     border: none;
     color: white;
-    padding: 10px 14px;
-    border-radius: 6px;
+    padding: 0 20px;
+    border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
+    transition: 0.2s;
 }
+
+button:active { transform: scale(0.95); }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #0b0b11; }
+::-webkit-scrollbar-thumb { background: #333; }
 </style>
 </head>
 
@@ -109,19 +137,19 @@ button {
 
 <header>
     <h1>🧠 BOB — BackOffice Brains</h1>
-    <p>Shiva in a Hoodie | The GCC Mentor</p>
+    <p>Beat the grind. Go home at 5. | Your GCC Insider</p>
 </header>
 
 <div id="chat"></div>
 
 <div class="suggestion-container">
-    <button class="chip" onclick="quickSend('BOB, explain Murex Datamart like I\'m 5.')">🍼 Toddler Test</button>
-    <button class="chip" onclick="quickSend('Help! My EOD batch is failing.')">🚨 Batch Error</button>
-    <button class="chip" onclick="quickSend('Fix my CV for a Murex role.')">👔 Fix My CV</button>
+    <button class="chip" onclick="quickSend('Explain Murex Datamart like we are at a chai tapri.')">☕ Chai-Time Tech</button>
+    <button class="chip" onclick="quickSend('My manager wants a report I don\'t understand. Help me look smart.')">🛡️ Manager Shield</button>
+    <button class="chip" onclick="quickSend('Rewrite my CV so a bot doesn\'t trash it.')">🚀 AI-Proof My CV</button>
 </div>
 
-<div id="input">
-    <textarea id="msg" rows="1" placeholder="Ask your peer, BOB..."></textarea>
+<div id="input-area">
+    <textarea id="msg" rows="1" placeholder="Type that 'silly' doubt here..."></textarea>
     <button id="send-btn">Send</button>
 </div>
 
@@ -133,21 +161,20 @@ const btnEl = document.getElementById('send-btn');
 let history = [];
 let loading = false;
 
-// Initialize BOB with his "Shiva" identity
+// The "Insidier Peer" System Prompt
 const systemPrompt = {
     role: "system",
-    content: "You are BOB (BackOffice Brains), an expert IB Ops and Murex mentor based in Bengaluru. You are known as 'Shiva in a Hoodie.' Your tone is calm, witty, and deeply empathetic. Explain complex things like a toddler can understand them. Use 'Namaskara' and talk like a supportive peer."
+    content: "You are BOB (BackOffice Brains), the ultimate peer for freshers in Bengaluru GCCs. You hate boring SOPs and office politics. Your goal is to help people understand complex IB Ops/Murex stuff effortlessly so they can finish work early. Use 'Namaskara', be witty, relatable, and use the 'Feynman Technique' (explain like I'm 5) for everything."
 };
 
-// Add system prompt to history so the API knows who BOB is
 history.push(systemPrompt);
 
 btnEl.onclick = sendMessage;
 
-// Shiva's First Welcome Message
+// The Hook Greeting
 window.onload = () => {
     setTimeout(() => {
-        addBubble("bob", "Namaskara! I'm BOB. 🧠 I'm sitting here in my hoodie ready to tackle those Murex bugs with you. What's the 'silly' doubt of the day?");
+        addBubble("bob", "Namaskara! I'm BOB. 🧠 Tired of yawning at 50-page SOPs and nodding at 'Office Uncles'? I'm here to translate the IB Ops chaos into English. What's the doubt you're too scared to ask your manager?");
     }, 800);
 };
 
@@ -165,10 +192,7 @@ async function sendMessage(){
 
     addBubble("user", text);
 
-    history.push({
-        role: "user",
-        content: text
-    });
+    history.push({ role: "user", content: text });
 
     try {
         const res = await fetch("/api/chat", {
@@ -178,17 +202,13 @@ async function sendMessage(){
         });
 
         const data = await res.json();
-        const reply = data.message || "BOB hit a snag.";
+        const reply = data.message || "My brain just hit a 404. Try again?";
 
         addBubble("bob", reply);
-
-        history.push({
-            role: "assistant",
-            content: reply
-        });
+        history.push({ role: "assistant", content: reply });
 
     } catch(e) {
-        addBubble("bob", "Network issue. Try again, ma.");
+        addBubble("bob", "Network issue. Even the Wi-Fi is playing politics today.");
     }
 
     loading = false;
@@ -197,13 +217,13 @@ async function sendMessage(){
 function addBubble(role, text){
     const div = document.createElement("div");
     div.className = "msg " + role;
-    div.textContent = (role === "user" ? "You: " : "BOB: ") + text;
+    div.textContent = (role === "user" ? "YOU: " : "BOB: ") + text;
 
     chatEl.appendChild(div);
     chatEl.scrollTop = chatEl.scrollHeight;
 }
 
-// Allow Enter key to send
+// Enter to Send logic
 msgEl.onkeypress = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
 </script>
 
