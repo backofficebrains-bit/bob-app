@@ -6,72 +6,101 @@
 <title>BOB — BackOffice Brains</title>
 
 <style>
-body{
-background:#0b0b11;
-color:#e8e8e8;
-font-family:monospace;
-margin:0;
-display:flex;
-flex-direction:column;
-height:100vh;
+body {
+    background: #0b0b11;
+    color: #e8e8e8;
+    font-family: monospace;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
 }
 
-header{
-padding:16px;
-border-bottom:1px solid #222;
-display:flex;
-align-items:center;
-gap:10px;
+header {
+    padding: 16px;
+    border-bottom: 1px solid #222;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
 }
 
-header h1{
-margin:0;
-font-size:18px;
-color:#ff6b2b;
+header h1 {
+    margin: 0;
+    font-size: 18px;
+    color: #ff6b2b;
 }
 
-#chat{
-flex:1;
-overflow-y:auto;
-padding:20px;
+header p {
+    margin: 0;
+    font-size: 12px;
+    color: #888;
 }
 
-.msg{
-margin-bottom:14px;
+#chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
 }
 
-.user{
-color:#fff;
+.msg {
+    margin-bottom: 14px;
+    line-height: 1.5;
 }
 
-.bob{
-color:#ffb28c;
+.user { color: #fff; border-left: 2px solid #555; padding-left: 10px; }
+.bob { color: #ffb28c; border-left: 2px solid #ff6b2b; padding-left: 10px; }
+
+/* Suggestions Styling */
+.suggestion-container {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: #0b0b11;
 }
 
-#input{
-display:flex;
-border-top:1px solid #222;
-padding:12px;
-gap:10px;
+.chip {
+    background: transparent;
+    border: 1px solid #ff6b2b;
+    color: #ff6b2b;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: monospace;
+    transition: 0.3s;
 }
 
-textarea{
-flex:1;
-background:#14141d;
-border:1px solid #333;
-color:white;
-padding:8px;
-border-radius:6px;
-resize:none;
+.chip:hover { background: rgba(255, 107, 43, 0.1); }
+
+#input {
+    display: flex;
+    border-top: 1px solid #222;
+    padding: 12px;
+    gap: 10px;
 }
 
-button{
-background:#ff6b2b;
-border:none;
-color:white;
-padding:10px 14px;
-border-radius:6px;
-cursor:pointer;
+textarea {
+    flex: 1;
+    background: #14141d;
+    border: 1px solid #333;
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+    resize: none;
+    outline: none;
+}
+
+button {
+    background: #ff6b2b;
+    border: none;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
 }
 </style>
 </head>
@@ -79,14 +108,21 @@ cursor:pointer;
 <body>
 
 <header>
-🧠 <h1>BOB — BackOffice Brains</h1>
+    <h1>🧠 BOB — BackOffice Brains</h1>
+    <p>Shiva in a Hoodie | The GCC Mentor</p>
 </header>
 
 <div id="chat"></div>
 
+<div class="suggestion-container">
+    <button class="chip" onclick="quickSend('BOB, explain Murex Datamart like I\'m 5.')">🍼 Toddler Test</button>
+    <button class="chip" onclick="quickSend('Help! My EOD batch is failing.')">🚨 Batch Error</button>
+    <button class="chip" onclick="quickSend('Fix my CV for a Murex role.')">👔 Fix My CV</button>
+</div>
+
 <div id="input">
-<textarea id="msg" rows="1" placeholder="Ask BOB about IB Ops..."></textarea>
-<button id="send-btn">Send</button>
+    <textarea id="msg" rows="1" placeholder="Ask your peer, BOB..."></textarea>
+    <button id="send-btn">Send</button>
 </div>
 
 <script>
@@ -97,65 +133,78 @@ const btnEl = document.getElementById('send-btn');
 let history = [];
 let loading = false;
 
+// Initialize BOB with his "Shiva" identity
+const systemPrompt = {
+    role: "system",
+    content: "You are BOB (BackOffice Brains), an expert IB Ops and Murex mentor based in Bengaluru. You are known as 'Shiva in a Hoodie.' Your tone is calm, witty, and deeply empathetic. Explain complex things like a toddler can understand them. Use 'Namaskara' and talk like a supportive peer."
+};
+
+// Add system prompt to history so the API knows who BOB is
+history.push(systemPrompt);
+
 btnEl.onclick = sendMessage;
 
+// Shiva's First Welcome Message
+window.onload = () => {
+    setTimeout(() => {
+        addBubble("bob", "Namaskara! I'm BOB. 🧠 I'm sitting here in my hoodie ready to tackle those Murex bugs with you. What's the 'silly' doubt of the day?");
+    }, 800);
+};
+
+function quickSend(text) {
+    msgEl.value = text;
+    sendMessage();
+}
+
 async function sendMessage(){
+    const text = msgEl.value.trim();
+    if(!text || loading) return;
 
-const text = msgEl.value.trim();
-if(!text || loading) return;
+    loading = true;
+    msgEl.value = "";
 
-loading=true;
-msgEl.value="";
+    addBubble("user", text);
 
-addBubble("user",text);
+    history.push({
+        role: "user",
+        content: text
+    });
 
-history.push({
-role:"user",
-content:text
-});
+    try {
+        const res = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ messages: history })
+        });
 
-try{
+        const data = await res.json();
+        const reply = data.message || "BOB hit a snag.";
 
-const res = await fetch("/api/chat",{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-messages:history
-})
-});
+        addBubble("bob", reply);
 
-const data = await res.json();
+        history.push({
+            role: "assistant",
+            content: reply
+        });
 
-const reply = data.message || "BOB hit a snag.";
+    } catch(e) {
+        addBubble("bob", "Network issue. Try again, ma.");
+    }
 
-addBubble("bob",reply);
-
-history.push({
-role:"assistant",
-content:reply
-});
-
-}catch(e){
-
-addBubble("bob","Network issue. Try again.");
-
+    loading = false;
 }
 
-loading=false;
+function addBubble(role, text){
+    const div = document.createElement("div");
+    div.className = "msg " + role;
+    div.textContent = (role === "user" ? "You: " : "BOB: ") + text;
+
+    chatEl.appendChild(div);
+    chatEl.scrollTop = chatEl.scrollHeight;
 }
 
-function addBubble(role,text){
-
-const div=document.createElement("div");
-div.className="msg "+role;
-div.textContent=(role==="user"?"You: ":"BOB: ")+text;
-
-chatEl.appendChild(div);
-chatEl.scrollTop=chatEl.scrollHeight;
-
-}
+// Allow Enter key to send
+msgEl.onkeypress = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
 </script>
 
 </body>
