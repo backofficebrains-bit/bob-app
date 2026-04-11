@@ -6,55 +6,112 @@
 <title>BOB — BackOffice Brains</title>
 <style>
     body { background: #0b0b11; color: #e8e8e8; font-family: 'Courier New', Courier, monospace; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-    header { padding: 25px; border-bottom: 1px solid #222; text-align: center; background: linear-gradient(to bottom, #14141d, #0b0b11); }
+
+    /* ── TWEAK 1: Credibility tagline + framework preview ── */
+    header { padding: 20px 25px 16px; border-bottom: 1px solid #222; text-align: center; background: linear-gradient(to bottom, #14141d, #0b0b11); }
     header h1 { margin: 0; font-size: 22px; color: #ff6b2b; letter-spacing: 3px; }
-    header p { margin: 8px 0 0; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-    
+    header .tagline { margin: 6px 0 0; font-size: 11px; color: #aaa; letter-spacing: 0.5px; line-height: 1.6; }
+    header .tagline span { color: #ff6b2b; }
+
+    /* ── TWEAK 3: Framework strip ── */
+    .framework-strip {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        align-items: center;
+        padding: 8px 16px;
+        background: #0f0f18;
+        border-bottom: 1px solid #1e1e2e;
+        flex-wrap: wrap;
+    }
+    .framework-strip .label { font-size: 9px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-right: 4px; }
+    .framework-pill {
+        font-size: 9px;
+        color: #ff6b2b;
+        border: 1px solid #2a2a3a;
+        border-radius: 3px;
+        padding: 3px 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        background: #14141d;
+    }
+    .framework-arrow { color: #333; font-size: 10px; }
+
     #chat { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; scroll-behavior: smooth; }
     .msg { margin-bottom: 20px; max-width: 85%; line-height: 1.6; padding: 12px 16px; border-radius: 4px; font-size: 14px; }
     .user { align-self: flex-end; color: #fff; background: #1a1a24; border-right: 4px solid #555; }
-    .bob { align-self: flex-start; color: #ffb28c; background: #14141d; border-left: 4px solid #ff6b2b; }
 
-    /* The Goal-Oriented Chips */
+    /* ── TWEAK 2: Structured 4-part BOB response ── */
+    .bob { align-self: flex-start; color: #e8e8e8; background: #14141d; border-left: 4px solid #ff6b2b; padding: 0; overflow: hidden; }
+    .bob-section { padding: 10px 16px; border-bottom: 1px solid #1e1e2a; }
+    .bob-section:last-child { border-bottom: none; }
+    .bob-section-label {
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #ff6b2b;
+        margin-bottom: 5px;
+        display: block;
+    }
+    .bob-section-text { color: #ffb28c; font-size: 13px; line-height: 1.7; }
+    /* Plain BOB message (greeting, error) */
+    .bob-plain { align-self: flex-start; color: #ffb28c; background: #14141d; border-left: 4px solid #ff6b2b; padding: 12px 16px; border-radius: 4px; font-size: 14px; line-height: 1.6; max-width: 85%; margin-bottom: 20px; }
+
     .goal-section { padding: 10px; background: #0f0f18; border-top: 1px solid #222; text-align: center; }
     .goal-label { font-size: 10px; color: #555; margin-bottom: 8px; text-transform: uppercase; display: block; }
     .suggestion-container { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
-    
-    .chip { 
-        background: transparent; border: 1px solid #ff6b2b; color: #ff6b2b; 
-        border-radius: 4px; padding: 8px 16px; font-size: 11px; cursor: pointer; 
+
+    /* ── TWEAK 2: Placeholder changes per mode ── */
+    .chip {
+        background: transparent; border: 1px solid #ff6b2b; color: #ff6b2b;
+        border-radius: 4px; padding: 8px 16px; font-size: 11px; cursor: pointer;
         font-family: inherit; transition: 0.3s; font-weight: bold;
     }
     .chip:hover { background: #ff6b2b; color: #0b0b11; box-shadow: 0 0 15px rgba(255,107,43,0.3); }
+    .chip.active-mode { background: #ff6b2b; color: #0b0b11; }
 
     #input-area { display: flex; padding: 20px; gap: 12px; background: #0b0b11; border-top: 1px solid #222; }
-    textarea { flex: 1; background: #14141d; border: 1px solid #333; color: white; padding: 14px; border-radius: 4px; resize: none; outline: none; font-family: inherit; }
-    button { background: #ff6b2b; border: none; color: white; padding: 0 25px; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 12px; }
-    
+    textarea { flex: 1; background: #14141d; border: 1px solid #333; color: white; padding: 14px; border-radius: 4px; resize: none; outline: none; font-family: inherit; font-size: 13px; }
+    button#send-btn { background: #ff6b2b; border: none; color: white; padding: 0 25px; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 12px; font-family: inherit; }
+
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-thumb { background: #ff6b2b; }
 </style>
 </head>
 <body>
 
+<!-- TWEAK 1: New credibility tagline -->
 <header>
     <h1>🧠 BOB — BackOffice Brains</h1>
-    <p>Ops Problem Solver & CV Architect | 5 PM is the Goal</p>
+    <p class="tagline">The AI copilot built by a <span>10-year IB Ops professional</span>.<br>For the people who keep markets settling.</p>
 </header>
+
+<!-- TWEAK 3: Framework strip always visible -->
+<div class="framework-strip">
+    <span class="label">BOB Thinks In:</span>
+    <span class="framework-pill">Root Cause</span>
+    <span class="framework-arrow">→</span>
+    <span class="framework-pill">Metaphor</span>
+    <span class="framework-arrow">→</span>
+    <span class="framework-pill">What To Check</span>
+    <span class="framework-arrow">→</span>
+    <span class="framework-pill">BOB Insight</span>
+</div>
 
 <div id="chat"></div>
 
 <div class="goal-section">
     <span class="goal-label">What do we tackle today?</span>
     <div class="suggestion-container">
-        <button class="chip" onclick="quickSend('I have an Ops crisis. Explain the Trade Lifecycle/SQL logic for my issue.')">🆘 SOLVE A CRISIS</button>
-        <button class="chip" onclick="quickSend('Review my CV for an IB Ops role. Make it AI-proof.')">👔 ENHANCE MY CV</button>
-        <button class="chip" onclick="quickSend('Help me handle my BGV/Career gap doubt for an interview.')">🛡️ BGV/INTERVIEW SHIELD</button>
+        <!-- TWEAK 2: Chips now set mode AND update placeholder -->
+        <button class="chip" onclick="setMode('crisis')">🆘 SOLVE A CRISIS</button>
+        <button class="chip" onclick="setMode('cv')">👔 ENHANCE MY CV</button>
+        <button class="chip" onclick="setMode('bgv')">🛡️ BGV/INTERVIEW SHIELD</button>
     </div>
 </div>
 
 <div id="input-area">
-    <textarea id="msg" rows="1" placeholder="Paste your CV or describe your Ops crisis..."></textarea>
+    <textarea id="msg" rows="1" placeholder="Describe your Ops crisis — MT103 stuck, Murex mismatch, settlement break..."></textarea>
     <button id="send-btn">Send</button>
 </div>
 
@@ -63,28 +120,68 @@ const chatEl = document.getElementById('chat');
 const msgEl = document.getElementById('msg');
 const btnEl = document.getElementById('send-btn');
 
+// TWEAK 2: Dynamic placeholders per mode
+const placeholders = {
+    crisis: "e.g. MT103 stuck in SWIFT, Murex shows matched but settlement failed, nostro break T+2...",
+    cv: "e.g. 4 years in FX confirmations and SWIFT reconciliation, applying for a senior Ops role...",
+    bgv: "e.g. I have a 6-month gap year, previous employer BGV issue, how do I handle the interview question..."
+};
+
+function setMode(mode) {
+    msgEl.placeholder = placeholders[mode];
+    msgEl.focus();
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active-mode'));
+    event.target.classList.add('active-mode');
+    const prefill = {
+        crisis: "I have an Ops crisis. ",
+        cv: "Please review my CV for an IB Ops role. ",
+        bgv: "Help me handle my BGV/career gap concern for an upcoming interview. "
+    };
+    msgEl.value = prefill[mode];
+}
+
 let history = [
     {
         role: "system",
-        content: "You are BOB (BackOffice Brains). You are NOT a general AI. You are a specialized Digital Consultant for IB Ops and GCC professionals. Your primary missions: 1. Solve technical Ops/SQL/Murex crises using the Feynman Technique. 2. Architect ATS-beating CVs. 3. Provide strategy for BGV and career hurdles. Talk like a street-smart peer from Bengaluru. Be punchy, witty, and helpful."
+        content: `You are BOB (BackOffice Brains). You are NOT a general AI. You are a specialized Digital Consultant for IB Ops and GCC professionals built by a 10-year IB Operations veteran.
+
+Your primary missions:
+1. Solve technical Ops/SQL/Murex crises using the Feynman Technique
+2. Architect ATS-beating CVs for IB Ops professionals
+3. Provide strategy for BGV and career hurdles
+
+CRITICAL — Always structure your response in EXACTLY this format, with each section clearly labeled on its own line:
+
+ROOT CAUSE:
+[Your root cause analysis here]
+
+METAPHOR:
+[A street-smart analogy that makes the concept click]
+
+WHAT TO CHECK:
+[Step-by-step checklist — specific, actionable, numbered]
+
+BOB INSIGHT:
+[Your sharp, punchy final take — like advice from your most experienced floor colleague]
+
+Talk like a street-smart peer from Bengaluru. Be punchy, witty, and helpful. Never give generic answers — always tie to real IB Ops systems: SWIFT, Murex, TLM, Bloomberg, FX, reconciliation.`
     }
 ];
 let loading = false;
 
 window.onload = () => {
     setTimeout(() => {
-        addBubble("bob", "Namaskara! 🧠 I'm BOB. Let's get straight to it. Are we fixing a crisis on the floor today, or are we building you a CV that recruiters can't ignore?");
+        addPlainBubble("Namaskara! 🧠 I'm BOB. Let's get straight to it — are we fixing a crisis on the floor today, or building you a CV that recruiters can't ignore?");
     }, 800);
 };
-
-function quickSend(text) { msgEl.value = text; sendMessage(); }
 
 async function sendMessage(){
     const text = msgEl.value.trim();
     if(!text || loading) return;
     loading = true;
+    btnEl.textContent = "...";
     msgEl.value = "";
-    addBubble("user", text);
+    addUserBubble(text);
     history.push({ role: "user", content: text });
 
     try {
@@ -94,22 +191,71 @@ async function sendMessage(){
             body: JSON.stringify({ messages: history })
         });
         const data = await res.json();
-        addBubble("bob", data.message || "Logic failure. Let's try that again.");
-        history.push({ role: "assistant", content: data.message });
+        const reply = data.message || "Logic failure. Let's try that again.";
+        addBobBubble(reply);
+        history.push({ role: "assistant", content: reply });
     } catch(e) {
-        addBubble("bob", "Even the GCC Wi-Fi is acting up. Try sending that again.");
+        addPlainBubble("Even the GCC Wi-Fi is acting up. Try sending that again.");
     }
     loading = false;
+    btnEl.textContent = "Send";
 }
 
-function addBubble(role, text){
+function addUserBubble(text) {
     const div = document.createElement("div");
-    div.className = "msg " + role;
-    div.textContent = (role === "user" ? "YOU: " : "BOB: ") + text;
+    div.className = "msg user";
+    div.textContent = "YOU: " + text;
     chatEl.appendChild(div);
     chatEl.scrollTop = chatEl.scrollHeight;
 }
 
+// TWEAK 2: Parse and render BOB's 4-part structured response
+function addBobBubble(text) {
+    const sections = [
+        { key: "ROOT CAUSE", label: "Root Cause" },
+        { key: "METAPHOR", label: "Metaphor" },
+        { key: "WHAT TO CHECK", label: "What To Check" },
+        { key: "BOB INSIGHT", label: "BOB Insight" }
+    ];
+
+    // Try to parse structured format
+    let parsed = {};
+    let remaining = text;
+    sections.forEach(s => {
+        const regex = new RegExp(s.key + ":\\s*([\\s\\S]*?)(?=" + sections.map(x => x.key + ":").join("|") + "|$)", "i");
+        const match = remaining.match(regex);
+        if (match) parsed[s.key] = match[1].trim();
+    });
+
+    const hasStructure = Object.keys(parsed).length >= 2;
+
+    if (hasStructure) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "msg bob";
+        sections.forEach(s => {
+            if (parsed[s.key]) {
+                const sec = document.createElement("div");
+                sec.className = "bob-section";
+                sec.innerHTML = `<span class="bob-section-label">${s.label}</span><div class="bob-section-text">${parsed[s.key].replace(/\n/g, '<br>')}</div>`;
+                wrapper.appendChild(sec);
+            }
+        });
+        chatEl.appendChild(wrapper);
+    } else {
+        addPlainBubble(text);
+    }
+    chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function addPlainBubble(text) {
+    const div = document.createElement("div");
+    div.className = "bob-plain";
+    div.textContent = "BOB: " + text;
+    chatEl.appendChild(div);
+    chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+btnEl.onclick = sendMessage;
 msgEl.onkeypress = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
 </script>
 </body>
