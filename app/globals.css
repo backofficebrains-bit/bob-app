@@ -106,7 +106,8 @@ h1 {
   letter-spacing: -0.075em;
 }
 
-.hero-text {
+.hero-text,
+.hero-lede {
   max-width: 800px;
   color: var(--muted);
   font-size: clamp(1rem, 2vw, 1.22rem);
@@ -121,7 +122,9 @@ h1 {
 }
 
 .primary-button,
-.secondary-button {
+.secondary-button,
+.primary-action,
+.secondary-action {
   min-height: 52px;
   padding: 0 22px;
   border-radius: 999px;
@@ -131,25 +134,161 @@ h1 {
   transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
 
-.primary-button {
+.primary-button,
+.primary-action {
   color: #0a1324;
   background: linear-gradient(135deg, var(--gold-bright), var(--gold));
   box-shadow: 0 16px 40px rgba(215, 168, 75, 0.26);
 }
 
-.secondary-button {
+.secondary-button,
+.secondary-action {
   color: var(--cream);
   border: 1px solid rgba(215, 168, 75, 0.38);
   background: rgba(255, 255, 255, 0.04);
 }
 
 .primary-button:hover,
-.secondary-button:hover {
+.secondary-button:hover,
+.primary-action:hover,
+.secondary-action:hover {
   transform: translateY(-2px);
 }
 
 .wide {
   width: 100%;
+}
+
+.primary-action,
+.secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.hero-orb {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-self: center;
+  width: min(100%, 320px);
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid rgba(244, 205, 122, 0.42);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(244, 205, 122, 0.28), rgba(117, 167, 255, 0.08) 48%, rgba(5, 9, 20, 0.48) 70%),
+    rgba(5, 9, 20, 0.58);
+  box-shadow: inset 0 0 80px rgba(215, 168, 75, 0.12), 0 30px 90px rgba(0, 0, 0, 0.36);
+}
+
+.hero-orb span {
+  margin-bottom: -48px;
+  color: var(--gold-bright);
+  font-size: clamp(4rem, 10vw, 7rem);
+  font-weight: 950;
+  letter-spacing: -0.08em;
+}
+
+.hero-orb small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.dna-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  margin: 22px 0;
+}
+
+.executive-card {
+  align-self: stretch;
+}
+
+.queue-list {
+  display: grid;
+  gap: 14px;
+}
+
+.queue-card {
+  width: 100%;
+  padding: 18px;
+  border: 1px solid rgba(159, 176, 199, 0.16);
+  border-radius: 20px;
+  color: var(--cream);
+  text-align: left;
+  cursor: pointer;
+  background: rgba(2, 7, 16, 0.46);
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.queue-card:hover,
+.queue-card.selected {
+  transform: translateY(-2px);
+  border-color: rgba(244, 205, 122, 0.62);
+  background: linear-gradient(135deg, rgba(215, 168, 75, 0.16), rgba(117, 167, 255, 0.08));
+}
+
+.queue-card span,
+.queue-card small {
+  display: block;
+  color: var(--muted);
+}
+
+.queue-card span {
+  margin-bottom: 8px;
+  color: var(--gold-bright);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.queue-card strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1.35rem;
+}
+
+.queue-card p {
+  margin: 12px 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.trade-ticket {
+  padding: 22px;
+  border: 1px solid rgba(215, 168, 75, 0.2);
+  border-radius: 24px;
+  background: rgba(2, 7, 16, 0.4);
+}
+
+.trade-ticket h3 {
+  margin: 22px 0 12px;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+}
+
+.trade-ticket p {
+  color: #fbe6be;
+  line-height: 1.7;
+}
+
+.standup-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 16px;
+  color: var(--muted);
+}
+
+.standup-strip strong {
+  color: var(--gold-bright);
 }
 
 .dna-card {
@@ -504,6 +643,7 @@ textarea:focus {
 
 @media (max-width: 980px) {
   .hero-panel,
+  .dna-grid,
   .workspace-grid,
   .two-column,
   .metrics-grid {

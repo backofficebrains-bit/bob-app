@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "BOB Career DNA Engine v0.1",
-  description: "Mock inference engine that reconstructs likely operations exposure from resume content and job history."
+  title: "BOB First Engagement Command Center",
+  description: "Back Office Brains command center for controlled IB Ops and Murex trade-lifecycle automation."
 };
 
 export default function RootLayout({ children }) {

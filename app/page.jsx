@@ -1,39 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { analyzeCareerDna, COMPANY_KNOWLEDGE_BASE } from "@/lib/careerDna";
-
-const sampleResume = `Wells Fargo, Bangalore — Senior Operations Analyst (2020-Present)
-Managed FX confirmations, SWIFT MT300 repair queues and nostro reconciliation breaks.
-Resolved settlement exceptions with counterparties and monitored CLS cut-off queues.
-Prepared daily risk controls, aging reports and escalation commentary for trade lifecycle issues.
-
-Accenture, Bengaluru — Process Specialist (2018-2020)
-Supported cash management operations, process migration and SOP creation for banking clients.
-Improved exception management trackers using Excel and SQL.`;
-
-const sampleJobDescription = `Hiring for Global Markets Operations Associate supporting FX and derivatives trade lifecycle. Responsibilities include confirmations, settlements, reconciliation, counterparty interaction, exception management, risk controls and process improvement.`;
-
-async function readResumeFile(file) {
-  if (file.type === "text/plain" || file.name.toLowerCase().endsWith(".txt")) {
-    return file.text();
-  }
-
-  if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
-    const buffer = await file.arrayBuffer();
-    const decoded = new TextDecoder("utf-8", { fatal: false }).decode(buffer);
-    const readableText = decoded
-      .replace(/[^\x20-\x7E\n\r\t]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-
-    return readableText.length > 120
-      ? readableText
-      : `PDF uploaded: ${file.name}. Mock v0.1 can accept PDFs locally, but best results need selectable PDF text or pasted resume content.`;
-  }
-
-  return file.text();
-}
+import { getFirstEngagementCandidate, OPERATIONS_QUEUES, runFirstEngagement } from "@/lib/bobOps";
 
 function Pill({ children }) {
   return <span className="pill">{children}</span>;
@@ -49,90 +17,80 @@ function MetricCard({ label, value, hint }) {
   );
 }
 
-function ReportCard({ report }) {
-  const evidenceRows = Object.entries(report.assetClassEvidence).sort((a, b) => b[1] - a[1]);
+function ExecutiveCard({ role, title, children }) {
+  return (
+    <article className="dna-card executive-card">
+      <span>[{role}]</span>
+      <strong>{title}</strong>
+      <p>{children}</p>
+    </article>
+  );
+}
 
+function QueueCard({ item, selected, onSelect }) {
+  return (
+    <button className={`queue-card ${selected ? "selected" : ""}`} onClick={() => onSelect(item.id)} type="button">
+      <span>{item.id}</span>
+      <strong>{item.tradeId}</strong>
+      <small>{item.lifecycleStage} · {item.assetClass} · risk {item.riskWeight}</small>
+      <p>{item.issue}</p>
+    </button>
+  );
+}
+
+function EngagementReport({ queueItem, report }) {
   return (
     <section className="report-shell" aria-live="polite">
       <div className="report-header">
         <div>
-          <p className="eyebrow">Recruiter Report Card</p>
-          <h2>Career DNA Reconstruction</h2>
+          <p className="eyebrow">BOB First Engagement</p>
+          <h2>{report.status}</h2>
         </div>
         <div className="score-orb">
-          <span>{report.confidenceScore}</span>
-          <small>confidence</small>
+          <span>{report.confidence}</span>
+          <small>control confidence</small>
         </div>
       </div>
 
       <div className="metrics-grid">
-        <MetricCard label="Likely asset class" value={report.likelyAssetClass} hint="Highest combined signal" />
-        <MetricCard label="Experience" value={report.yearsOfExperience ? `${report.yearsOfExperience} yrs` : "Needs detail"} hint="Parsed from dates / year claims" />
-        <MetricCard label="Companies" value={report.companies.length ? String(report.companies.length) : "0"} hint="Known + inferred employers" />
+        <MetricCard label="Trade selected" value={queueItem.tradeId} hint={`${queueItem.sourceSystem} queue`} />
+        <MetricCard label="Minutes saved" value={`${report.economics.minutesSaved} min`} hint={`${report.economics.manualMinutes} min manual baseline`} />
+        <MetricCard label="ROI proof" value={`${report.economics.roiMultiple}x`} hint={`$${report.economics.valueSavedUsd} labor value / $${report.economics.tokenCostUsd} token cost`} />
       </div>
 
       <div className="report-section summary-section">
-        <p className="section-kicker">Career DNA Summary</p>
-        <p>{report.summary}</p>
-        <strong>{report.recruiterVerdict}</strong>
+        <p className="section-kicker">Execution Decision</p>
+        <p>{report.mission}</p>
+        <strong>{report.autoExecutable ? "Proceed: automation can complete the repair with maker-checker release." : "Stop: package evidence for human approval before book mutation."}</strong>
       </div>
 
       <div className="two-column">
         <div className="report-section">
-          <p className="section-kicker">Extracted Profile</p>
-          <h3>Companies</h3>
-          <div className="pill-row">{report.companies.length ? report.companies.map((company) => <Pill key={company}>{company}</Pill>) : <Pill>No clear company names found</Pill>}</div>
-          <h3>Job Titles</h3>
-          <div className="pill-row">{report.jobTitles.length ? report.jobTitles.map((title) => <Pill key={title}>{title}</Pill>) : <Pill>No clear title found</Pill>}</div>
-          <h3>Locations</h3>
-          <div className="pill-row">{report.locations.length ? report.locations.map((location) => <Pill key={location}>{location}</Pill>) : <Pill>No location detected</Pill>}</div>
-        </div>
-
-        <div className="report-section">
-          <p className="section-kicker">Asset-Class Evidence</p>
-          <div className="evidence-list">
-            {evidenceRows.map(([asset, score]) => (
-              <div className="evidence-row" key={asset}>
-                <span>{asset}</span>
-                <div className="bar"><i style={{ width: `${Math.min(100, score * 9)}%` }} /></div>
-                <b>{score}</b>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="two-column">
-        <div className="report-section">
-          <p className="section-kicker">Explicit Skills</p>
-          <div className="pill-row gold">{report.explicitSkills.length ? report.explicitSkills.map((skill) => <Pill key={skill}>{skill}</Pill>) : <Pill>None directly detected</Pill>}</div>
-        </div>
-        <div className="report-section">
-          <p className="section-kicker">Inferred Skills</p>
-          <div className="pill-row blue">{report.inferredSkills.map((skill) => <Pill key={skill}>{skill}</Pill>)}</div>
-        </div>
-      </div>
-
-      <div className="report-section">
-        <p className="section-kicker">Responsibilities Extracted</p>
-        <ul className="clean-list">
-          {report.responsibilities.length ? report.responsibilities.map((item) => <li key={item}>{item}</li>) : <li>Add responsibility bullets for stronger reconstruction.</li>}
-        </ul>
-      </div>
-
-      <div className="two-column">
-        <div className="report-section">
-          <p className="section-kicker">Reasoning</p>
+          <p className="section-kicker">CTO Automation Runbook</p>
           <ul className="clean-list numbered">
-            {report.reasoning.map((reason) => <li key={reason}>{reason}</li>)}
+            {report.actions.map((action) => <li key={action}>{action}</li>)}
           </ul>
         </div>
         <div className="report-section">
-          <p className="section-kicker">Recruiter Notes</p>
-          <h3>Fit Signals</h3>
-          <ul className="clean-list compact">{report.fitSignals.map((signal) => <li key={signal}>{signal}</li>)}</ul>
-          <h3>Watchouts</h3>
-          <ul className="clean-list compact warning">{report.watchouts.map((watchout) => <li key={watchout}>{watchout}</li>)}</ul>
+          <p className="section-kicker">CFO Risk Controls</p>
+          <ul className="clean-list warning">
+            {report.controls.map((control) => <li key={control}>{control}</li>)}
+          </ul>
+        </div>
+      </div>
+
+      <div className="two-column">
+        <div className="report-section">
+          <p className="section-kicker">Audit Trail</p>
+          <ul className="clean-list compact">
+            {report.auditTrail.map((entry) => <li key={entry}>{entry}</li>)}
+          </ul>
+        </div>
+        <div className="report-section">
+          <p className="section-kicker">Available Data</p>
+          <div className="pill-row blue">
+            {Object.entries(queueItem.availableData).map(([key, value]) => <Pill key={key}>{key}: {value}</Pill>)}
+          </div>
         </div>
       </div>
     </section>
@@ -140,96 +98,89 @@ function ReportCard({ report }) {
 }
 
 export default function Home() {
-  const [jobDescription, setJobDescription] = useState(sampleJobDescription);
-  const [resumeText, setResumeText] = useState(sampleResume);
-  const [fileName, setFileName] = useState("Sample resume loaded");
-  const [report, setReport] = useState(() => analyzeCareerDna(sampleJobDescription, sampleResume));
-  const [isReading, setIsReading] = useState(false);
-
-  const knowledgeCompanies = useMemo(() => Object.keys(COMPANY_KNOWLEDGE_BASE), []);
-
-  async function handleFileChange(event) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setIsReading(true);
-    setFileName(file.name);
-    const text = await readResumeFile(file);
-    setResumeText(text);
-    setIsReading(false);
-  }
-
-  function analyze() {
-    setReport(analyzeCareerDna(jobDescription, resumeText));
-  }
-
-  function resetDemo() {
-    setJobDescription(sampleJobDescription);
-    setResumeText(sampleResume);
-    setFileName("Sample resume loaded");
-    setReport(analyzeCareerDna(sampleJobDescription, sampleResume));
-  }
+  const firstCandidate = useMemo(() => getFirstEngagementCandidate(), []);
+  const [selectedId, setSelectedId] = useState(firstCandidate.id);
+  const selectedQueueItem = OPERATIONS_QUEUES.find((item) => item.id === selectedId) || firstCandidate;
+  const report = useMemo(() => runFirstEngagement(selectedQueueItem), [selectedQueueItem]);
 
   return (
     <main className="app-shell">
-      <section className="hero-panel">
+      <section className="hero-panel glass-card">
         <div className="hero-copy">
-          <p className="eyebrow">BOB Career DNA Engine v0.1</p>
-          <h1>Reconstruct operations exposure from career evidence — not ATS keywords.</h1>
-          <p className="hero-text">
-            BOB reads resume content and job history to infer likely asset class, operating model exposure, explicit skills, adjacent skills, and recruiter screening angles for banking operations talent.
+          <p className="eyebrow">Back Office Brains · IB Ops Automation</p>
+          <h1>BOB is now a first-engagement command center.</h1>
+          <p className="hero-lede">
+            Pick a live-style operations break, let BOB triage the Murex or trade-lifecycle evidence, and prove a controlled automation outcome with ROI in one screen.
           </p>
           <div className="hero-actions">
-            <button onClick={analyze} className="primary-button">Analyze Career DNA</button>
-            <button onClick={resetDemo} className="secondary-button">Reload demo</button>
+            <a href="#engagement" className="primary-action">Run first engagement</a>
+            <a href="#queue" className="secondary-action">Review queue</a>
           </div>
         </div>
-        <div className="dna-card">
-          <span>Mock inference mode</span>
-          <strong>Company × Function × Asset Class</strong>
-          <p>Premium local prototype. No candidate data leaves the browser.</p>
+        <div className="hero-orb" aria-label="BOB automation status">
+          <span>BOB</span>
+          <small>Execution mode</small>
         </div>
       </section>
 
-      <section className="workspace-grid">
-        <div className="input-panel">
+      <section className="dna-grid">
+        <ExecutiveCard role="CEO" title="Immediate next step">
+          Execute the highest-risk queue item first, then freeze scope until one controlled trade-lifecycle repair is demonstrably ready for release.
+        </ExecutiveCard>
+        <ExecutiveCard role="CTO" title="Automation built">
+          Dummy Murex-style queues, deterministic triage logic, action runbooks, and audit output are wired locally for repeatable demos.
+        </ExecutiveCard>
+        <ExecutiveCard role="CFO" title="Risk and ROI proof">
+          Every proposed action includes maker-checker controls, mutation limits, minutes saved, token cost, and ROI multiple before deployment.
+        </ExecutiveCard>
+      </section>
+
+      <section id="queue" className="workspace-grid">
+        <div className="input-panel glass-card">
           <div className="panel-heading">
             <span>01</span>
             <div>
-              <h2>Upload Job Description</h2>
-              <p>Paste target role context so BOB can compare the candidate against desk expectations.</p>
+              <h2>Operations queue</h2>
+              <p>Select the break BOB should attempt. The default is the highest risk-weighted candidate for first engagement.</p>
             </div>
           </div>
-          <textarea value={jobDescription} onChange={(event) => setJobDescription(event.target.value)} placeholder="Paste job description here..." />
+          <div className="queue-list">
+            {OPERATIONS_QUEUES.map((item) => (
+              <QueueCard item={item} key={item.id} onSelect={setSelectedId} selected={item.id === selectedId} />
+            ))}
+          </div>
         </div>
 
-        <div className="input-panel">
+        <div className="input-panel glass-card">
           <div className="panel-heading">
             <span>02</span>
             <div>
-              <h2>Upload Resume</h2>
-              <p>Upload a PDF/text file or paste resume content directly. PDF support is local and mock-friendly for selectable text.</p>
+              <h2>Selected trade evidence</h2>
+              <p>BOB reads the operational symptoms and available static data before proposing any book-impacting action.</p>
             </div>
           </div>
-          <label className="file-drop">
-            <input type="file" accept=".pdf,.txt,text/plain,application/pdf" onChange={handleFileChange} />
-            <strong>{isReading ? "Reading file..." : "Choose PDF or text resume"}</strong>
-            <small>{fileName}</small>
-          </label>
-          <textarea className="resume-textarea" value={resumeText} onChange={(event) => setResumeText(event.target.value)} placeholder="Paste resume text here..." />
+          <div className="trade-ticket">
+            <Pill>{selectedQueueItem.assetClass}</Pill>
+            <Pill>{selectedQueueItem.lifecycleStage}</Pill>
+            <Pill>{selectedQueueItem.valueDate}</Pill>
+            <h3>{selectedQueueItem.tradeId} · {selectedQueueItem.counterparty}</h3>
+            <p>{selectedQueueItem.issue}</p>
+            <ul className="clean-list compact">
+              {selectedQueueItem.symptoms.map((symptom) => <li key={symptom}>{symptom}</li>)}
+            </ul>
+          </div>
         </div>
       </section>
 
-      <section className="knowledge-strip">
-        <p>Internal knowledge base</p>
-        <div>{knowledgeCompanies.map((company) => <Pill key={company}>{company}</Pill>)}</div>
-      </section>
-
-      <div className="sticky-analyze">
-        <button onClick={analyze} className="primary-button wide">Analyze button</button>
+      <div id="engagement" className="sticky-analyze glass-card">
+        <div className="standup-strip">
+          <strong>[CEO]</strong> Execute selected queue item.
+          <strong>[CTO]</strong> Run deterministic BOB triage.
+          <strong>[CFO]</strong> Validate controls and ROI before release.
+        </div>
       </div>
 
-      <ReportCard report={report} />
+      <EngagementReport queueItem={selectedQueueItem} report={report} />
     </main>
   );
 }
