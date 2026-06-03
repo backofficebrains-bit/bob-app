@@ -5,108 +5,227 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BOB — BackOffice Brains</title>
 <style>
-    body { background: #0b0b11; color: #e8e8e8; font-family: 'Courier New', Courier, monospace; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+    :root {
+        --bg: #0b0b11;
+        --panel: #14141d;
+        --panel-2: #0f0f18;
+        --line: #252536;
+        --muted: #aaa;
+        --orange: #ff6b2b;
+        --orange-soft: #ffb28c;
+        --green: #37d67a;
+        --gold: #ffd37a;
+    }
 
-    /* ── TWEAK 1: Credibility tagline + framework preview ── */
-    header { padding: 20px 25px 16px; border-bottom: 1px solid #222; text-align: center; background: linear-gradient(to bottom, #14141d, #0b0b11); }
-    header h1 { margin: 0; font-size: 22px; color: #ff6b2b; letter-spacing: 3px; }
-    header .tagline { margin: 6px 0 0; font-size: 11px; color: #aaa; letter-spacing: 0.5px; line-height: 1.6; }
-    header .tagline span { color: #ff6b2b; }
+    * { box-sizing: border-box; }
+    body {
+        min-height: 100vh;
+        margin: 0;
+        background: radial-gradient(circle at 10% 0%, rgba(255,107,43,0.13), transparent 30rem), var(--bg);
+        color: #e8e8e8;
+        display: flex;
+        flex-direction: column;
+        font-family: 'Courier New', Courier, monospace;
+    }
 
-    /* ── TWEAK 3: Framework strip ── */
+    header {
+        padding: 20px 25px 16px;
+        border-bottom: 1px solid #222;
+        text-align: center;
+        background: linear-gradient(to bottom, #14141d, #0b0b11);
+    }
+    header h1 { margin: 0; color: var(--orange); font-size: 22px; letter-spacing: 3px; }
+    header .tagline { margin: 6px 0 0; color: var(--muted); font-size: 11px; letter-spacing: 0.5px; line-height: 1.6; }
+    header .tagline span { color: var(--orange); }
+
     .framework-strip {
         display: flex;
-        justify-content: center;
-        gap: 6px;
         align-items: center;
-        padding: 8px 16px;
-        background: #0f0f18;
-        border-bottom: 1px solid #1e1e2e;
+        justify-content: center;
         flex-wrap: wrap;
+        gap: 6px;
+        padding: 8px 16px;
+        background: var(--panel-2);
+        border-bottom: 1px solid #1e1e2e;
     }
-    .framework-strip .label { font-size: 9px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-right: 4px; }
+    .framework-strip .label { margin-right: 4px; color: #666; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; }
     .framework-pill {
-        font-size: 9px;
-        color: #ff6b2b;
+        padding: 3px 8px;
         border: 1px solid #2a2a3a;
         border-radius: 3px;
-        padding: 3px 8px;
+        background: var(--panel);
+        color: var(--orange);
+        font-size: 9px;
         text-transform: uppercase;
         letter-spacing: 0.8px;
-        background: #14141d;
     }
     .framework-arrow { color: #333; font-size: 10px; }
 
-    #chat { flex: 1; overflow-y: auto; padding: 25px; display: flex; flex-direction: column; scroll-behavior: smooth; }
+    .command-center {
+        margin: 14px auto 0;
+        width: min(1180px, calc(100% - 24px));
+        border: 1px solid rgba(255,107,43,0.34);
+        border-radius: 10px;
+        background: linear-gradient(135deg, rgba(255,107,43,0.09), rgba(20,20,29,0.96));
+        overflow: hidden;
+        box-shadow: 0 18px 50px rgba(0,0,0,0.25);
+    }
+    .command-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 18px;
+        align-items: center;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(255,107,43,0.18);
+    }
+    .command-header span,
+    .section-label {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--orange);
+        font-size: 9px;
+        font-weight: bold;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+    }
+    .command-header h2 { margin: 0 0 5px; font-size: 18px; color: #fff; }
+    .command-header p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .run-btn {
+        min-height: 42px;
+        padding: 0 18px;
+        border: 0;
+        border-radius: 6px;
+        background: var(--orange);
+        color: #0b0b11;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+    .command-grid {
+        display: grid;
+        grid-template-columns: 1.05fr 1fr;
+        gap: 12px;
+        padding: 12px;
+    }
+    .queue-list, .engagement-report { display: grid; gap: 10px; }
+    .queue-card {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #2a2a3a;
+        border-radius: 8px;
+        background: rgba(15,15,24,0.82);
+        color: #e8e8e8;
+        cursor: pointer;
+        font-family: inherit;
+        text-align: left;
+    }
+    .queue-card.selected { border-color: var(--orange); background: rgba(255,107,43,0.12); }
+    .queue-card strong { display: block; margin-bottom: 4px; color: #fff; font-size: 14px; }
+    .queue-card small { display: block; color: var(--gold); font-size: 10px; line-height: 1.5; }
+    .queue-card p { margin: 7px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .report-card {
+        padding: 12px;
+        border: 1px solid #2a2a3a;
+        border-radius: 8px;
+        background: rgba(15,15,24,0.82);
+    }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .metric { padding: 10px; border: 1px solid #252536; border-radius: 6px; background: #101018; }
+    .metric span { display: block; color: #777; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; }
+    .metric strong { display: block; margin-top: 5px; color: var(--orange-soft); font-size: 16px; }
+    .compact-list { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 11px; line-height: 1.55; }
+    .status-ready { color: var(--green); }
+
+    #chat { flex: 1; min-height: 260px; overflow-y: auto; padding: 20px 25px; display: flex; flex-direction: column; scroll-behavior: smooth; }
     .msg { margin-bottom: 20px; max-width: 85%; line-height: 1.6; padding: 12px 16px; border-radius: 4px; font-size: 14px; }
     .user { align-self: flex-end; color: #fff; background: #1a1a24; border-right: 4px solid #555; }
-
-    /* ── TWEAK 2: Structured 4-part BOB response ── */
-    .bob { align-self: flex-start; color: #e8e8e8; background: #14141d; border-left: 4px solid #ff6b2b; padding: 0; overflow: hidden; }
+    .bob { align-self: flex-start; color: #e8e8e8; background: var(--panel); border-left: 4px solid var(--orange); padding: 0; overflow: hidden; }
     .bob-section { padding: 10px 16px; border-bottom: 1px solid #1e1e2a; }
     .bob-section:last-child { border-bottom: none; }
-    .bob-section-label {
-        font-size: 9px;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        color: #ff6b2b;
-        margin-bottom: 5px;
-        display: block;
-    }
-    .bob-section-text { color: #ffb28c; font-size: 13px; line-height: 1.7; }
-    /* Plain BOB message (greeting, error) */
-    .bob-plain { align-self: flex-start; color: #ffb28c; background: #14141d; border-left: 4px solid #ff6b2b; padding: 12px 16px; border-radius: 4px; font-size: 14px; line-height: 1.6; max-width: 85%; margin-bottom: 20px; }
+    .bob-section-label { display: block; margin-bottom: 5px; color: var(--orange); font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; }
+    .bob-section-text { color: var(--orange-soft); font-size: 13px; line-height: 1.7; }
+    .bob-plain { align-self: flex-start; max-width: 85%; margin-bottom: 20px; padding: 12px 16px; border-left: 4px solid var(--orange); border-radius: 4px; background: var(--panel); color: var(--orange-soft); font-size: 14px; line-height: 1.6; }
 
-    .goal-section { padding: 10px; background: #0f0f18; border-top: 1px solid #222; text-align: center; }
-    .goal-label { font-size: 10px; color: #555; margin-bottom: 8px; text-transform: uppercase; display: block; }
+    .goal-section { padding: 10px; background: var(--panel-2); border-top: 1px solid #222; text-align: center; }
+    .goal-label { display: block; margin-bottom: 8px; color: #666; font-size: 10px; text-transform: uppercase; }
     .suggestion-container { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 10px; }
-
-    /* ── TWEAK 2: Placeholder changes per mode ── */
     .chip {
-        background: transparent; border: 1px solid #ff6b2b; color: #ff6b2b;
-        border-radius: 4px; padding: 8px 16px; font-size: 11px; cursor: pointer;
-        font-family: inherit; transition: 0.3s; font-weight: bold;
+        padding: 8px 16px;
+        border: 1px solid var(--orange);
+        border-radius: 4px;
+        background: transparent;
+        color: var(--orange);
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: bold;
+        transition: 0.3s;
     }
-    .chip:hover { background: #ff6b2b; color: #0b0b11; box-shadow: 0 0 15px rgba(255,107,43,0.3); }
-    .chip.active-mode { background: #ff6b2b; color: #0b0b11; }
-
-    #input-area { display: flex; padding: 20px; gap: 12px; background: #0b0b11; border-top: 1px solid #222; }
-    textarea { flex: 1; background: #14141d; border: 1px solid #333; color: white; padding: 14px; border-radius: 4px; resize: none; outline: none; font-family: inherit; font-size: 13px; }
-    button#send-btn { background: #ff6b2b; border: none; color: white; padding: 0 25px; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 12px; font-family: inherit; }
+    .chip:hover, .chip.active-mode { background: var(--orange); color: #0b0b11; box-shadow: 0 0 15px rgba(255,107,43,0.3); }
+    #input-area { display: flex; gap: 12px; padding: 20px; border-top: 1px solid #222; background: var(--bg); }
+    textarea { flex: 1; padding: 14px; border: 1px solid #333; border-radius: 4px; outline: none; background: var(--panel); color: white; resize: none; font-family: inherit; font-size: 13px; }
+    button#send-btn { padding: 0 25px; border: none; border-radius: 4px; background: var(--orange); color: white; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: bold; text-transform: uppercase; }
 
     ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-thumb { background: #ff6b2b; }
+    ::-webkit-scrollbar-thumb { background: var(--orange); }
+
+    @media (max-width: 900px) {
+        .command-header, .command-grid, .metrics { grid-template-columns: 1fr; }
+        .run-btn { width: 100%; }
+        .msg, .bob-plain { max-width: 100%; }
+    }
 </style>
 </head>
 <body>
-
-<!-- TWEAK 1: New credibility tagline -->
 <header>
     <h1>🧠 BOB — BackOffice Brains</h1>
     <p class="tagline">The AI copilot built by a <span>10-year IB Ops professional</span>.<br>For the people who keep markets settling.</p>
 </header>
 
-<!-- TWEAK 3: Framework strip always visible -->
 <div class="framework-strip">
-    <span class="label">BOB Thinks In:</span>
-    <span class="framework-pill">Root Cause</span>
+    <span class="label">BOB Executes With:</span>
+    <span class="framework-pill">CEO Next Step</span>
     <span class="framework-arrow">→</span>
-    <span class="framework-pill">Metaphor</span>
+    <span class="framework-pill">CTO Runbook</span>
     <span class="framework-arrow">→</span>
-    <span class="framework-pill">What To Check</span>
+    <span class="framework-pill">CFO Risk + ROI</span>
     <span class="framework-arrow">→</span>
     <span class="framework-pill">BOB Insight</span>
 </div>
+
+<section class="command-center" id="first-engagement">
+    <div class="command-header">
+        <div>
+            <span>First Engagement Command Center</span>
+            <h2>Live-style IB Ops automation, integrated into BOB.</h2>
+            <p>Select a Murex / trade-lifecycle break. BOB triages it, blocks unsafe book mutation, and proves minutes saved before release.</p>
+        </div>
+        <button class="run-btn" id="run-engagement-btn">Run First Engagement</button>
+    </div>
+    <div class="command-grid">
+        <div>
+            <span class="section-label">Operations Queue</span>
+            <div class="queue-list" id="queue-list"></div>
+        </div>
+        <div>
+            <span class="section-label">Execution Proof</span>
+            <div class="engagement-report" id="engagement-report"></div>
+        </div>
+    </div>
+</section>
 
 <div id="chat"></div>
 
 <div class="goal-section">
     <span class="goal-label">What do we tackle today?</span>
     <div class="suggestion-container">
-        <!-- TWEAK 2: Chips now set mode AND update placeholder -->
-        <button class="chip" onclick="setMode('crisis')">🆘 SOLVE A CRISIS</button>
-        <button class="chip" onclick="setMode('cv')">👔 ENHANCE MY CV</button>
-        <button class="chip" onclick="setMode('bgv')">🛡️ BGV/INTERVIEW SHIELD</button>
+        <button class="chip" onclick="setMode('engagement', event)">🚀 FIRST ENGAGEMENT</button>
+        <button class="chip" onclick="setMode('crisis', event)">🆘 SOLVE A CRISIS</button>
+        <button class="chip" onclick="setMode('cv', event)">👔 ENHANCE MY CV</button>
+        <button class="chip" onclick="setMode('bgv', event)">🛡️ BGV/INTERVIEW SHIELD</button>
     </div>
 </div>
 
@@ -119,60 +238,204 @@
 const chatEl = document.getElementById('chat');
 const msgEl = document.getElementById('msg');
 const btnEl = document.getElementById('send-btn');
+const queueListEl = document.getElementById('queue-list');
+const reportEl = document.getElementById('engagement-report');
+const runEngagementBtn = document.getElementById('run-engagement-btn');
 
-// TWEAK 2: Dynamic placeholders per mode
+const operationsQueues = [
+    {
+        id: "FX-CLS-001",
+        sourceSystem: "Murex MX.3",
+        assetClass: "FX Spot",
+        lifecycleStage: "Settlement",
+        tradeId: "MX-785431",
+        counterparty: "Barclays London",
+        notional: 12500000,
+        valueDate: "2026-06-03",
+        issue: "CLS settlement held because counterparty SSI BIC is missing from the outbound MT300 confirmation.",
+        symptoms: ["MT300 validation failed", "SSI enrichment missing BIC", "CLS cut-off in 42 minutes"],
+        availableData: { nostro: "WFBIUS6SXXX", counterpartyBic: "BARCGB22XXX", settlementAccount: "INR-CLS-4471", confirmationStatus: "Unmatched", cashProjection: "Funded" },
+        manualMinutes: 28,
+        riskWeight: 92
+    },
+    {
+        id: "OTC-CFM-009",
+        sourceSystem: "MarkitWire / Murex",
+        assetClass: "Rates Swap",
+        lifecycleStage: "Confirmation",
+        tradeId: "IRS-229801",
+        counterparty: "JPMorgan Chase",
+        notional: 50000000,
+        valueDate: "2026-06-04",
+        issue: "OTC confirmation unmatched because floating-rate reset convention differs between MarkitWire and Murex.",
+        symptoms: ["Economic mismatch", "Reset convention mismatch", "T+1 confirmation SLA at risk"],
+        availableData: { murexReset: "GBP-SONIA-OIS Compound", streetReset: "GBP-SONIA Compounded Index", paymentFrequency: "Annual", confirmationStatus: "Unmatched" },
+        manualMinutes: 46,
+        riskWeight: 88
+    },
+    {
+        id: "EQ-FAIL-014",
+        sourceSystem: "Custody Fails Queue",
+        assetClass: "Equities",
+        lifecycleStage: "Reconciliation",
+        tradeId: "EQ-441909",
+        counterparty: "Goldman Sachs",
+        notional: 840000,
+        valueDate: "2026-06-03",
+        issue: "Depot position break after settlement affirmation; broker quantity differs from internal booking.",
+        symptoms: ["Position mismatch", "Broker query pending", "No cash impact yet"],
+        availableData: { internalQuantity: "18,000", brokerQuantity: "17,000", isin: "US0378331005", confirmationStatus: "Affirmed" },
+        manualMinutes: 35,
+        riskWeight: 74
+    }
+];
+
+const controlCatalog = {
+    settlement: ["Verify value date is today and cash projection is funded before release.", "Validate enriched SSI BIC against approved counterparty static data.", "Retain maker-checker audit evidence for the repaired MT300."],
+    reconciliation: ["Do not auto-book quantity or cash changes without broker evidence.", "Open broker query and tag the break as no-cash-impact until validated.", "Escalate if aging crosses same-day settlement cut-off."],
+    confirmation: ["Compare economic fields only; avoid legal text mutation in automation mode.", "Route convention mismatch to authorized confirmer for four-eyes approval.", "Capture Murex and platform values for audit replay."]
+};
+
+const actionLibrary = {
+    settlement: ["Enrich counterparty SSI BIC from approved static data cache.", "Regenerate outbound MT300 payload for the same trade ID.", "Queue maker-checker review with CLS cut-off priority flag."],
+    reconciliation: ["Create broker query pack with internal versus street quantity evidence.", "Classify break as position-only pending broker response.", "Park auto-adjustment because source-of-truth evidence is incomplete."],
+    confirmation: ["Map equivalent SONIA reset convention labels across Murex and MarkitWire.", "Prepare economic-field amendment note for confirmer approval.", "Attach before-and-after field comparison for audit review."]
+};
+
 const placeholders = {
+    engagement: "e.g. Run first engagement on FX-CLS-001 and show CEO/CTO/CFO next actions...",
     crisis: "e.g. MT103 stuck in SWIFT, Murex shows matched but settlement failed, nostro break T+2...",
     cv: "e.g. 4 years in FX confirmations and SWIFT reconciliation, applying for a senior Ops role...",
     bgv: "e.g. I have a 6-month gap year, previous employer BGV issue, how do I handle the interview question..."
 };
 
-function setMode(mode) {
-    msgEl.placeholder = placeholders[mode];
-    msgEl.focus();
-    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active-mode'));
-    event.target.classList.add('active-mode');
-    const prefill = {
-        crisis: "I have an Ops crisis. ",
-        cv: "Please review my CV for an IB Ops role. ",
-        bgv: "Help me handle my BGV/career gap concern for an upcoming interview. "
-    };
-    msgEl.value = prefill[mode];
+const prefill = {
+    engagement: "Run BOB's first engagement on the highest-risk trade lifecycle break. ",
+    crisis: "I have an Ops crisis. ",
+    cv: "Please review my CV for an IB Ops role. ",
+    bgv: "Help me handle my BGV/career gap concern for an upcoming interview. "
+};
+
+let selectedQueueId = getFirstEngagementCandidate().id;
+let loading = false;
+let history = [];
+
+function getQueueType(queueItem) {
+    const stage = queueItem.lifecycleStage.toLowerCase();
+    if (stage.includes("settlement")) return "settlement";
+    if (stage.includes("reconciliation")) return "reconciliation";
+    return "confirmation";
 }
 
-let history = [
-    {
-        role: "system",
-        content: `You are BOB (BackOffice Brains). You are NOT a general AI. You are a specialized Digital Consultant for IB Ops and GCC professionals built by a 10-year IB Operations veteran.
+function getFirstEngagementCandidate() {
+    return [...operationsQueues].sort((a, b) => b.riskWeight - a.riskWeight)[0];
+}
 
-Your primary missions:
-1. Solve technical Ops/SQL/Murex crises using the Feynman Technique
-2. Architect ATS-beating CVs for IB Ops professionals
-3. Provide strategy for BGV and career hurdles
+function runFirstEngagement(queueItem) {
+    const queueType = getQueueType(queueItem);
+    const confidence = Math.min(96, 64 + queueItem.symptoms.length * 6 + Object.keys(queueItem.availableData).length * 3);
+    const autoExecutable = queueType === "settlement" && confidence >= 82 && Boolean(queueItem.availableData.counterpartyBic);
+    const tokenCostUsd = 0.018;
+    const hourlyOpsCostUsd = 42;
+    const minutesSaved = autoExecutable ? queueItem.manualMinutes - 4 : Math.round(queueItem.manualMinutes * 0.45);
+    const valueSavedUsd = (minutesSaved / 60) * hourlyOpsCostUsd;
+    return {
+        queueType,
+        confidence,
+        autoExecutable,
+        status: autoExecutable ? "First Engagement Ready" : "Human Approval Required",
+        mission: autoExecutable
+            ? `BOB can repair ${queueItem.tradeId}, rebuild the outbound confirmation, and route it for maker-checker release before cut-off.`
+            : `BOB can package ${queueItem.tradeId} for faster human approval, but should not mutate books automatically yet.`,
+        actions: actionLibrary[queueType],
+        controls: controlCatalog[queueType],
+        economics: {
+            minutesSaved,
+            tokenCostUsd,
+            valueSavedUsd: Number(valueSavedUsd.toFixed(2)),
+            roiMultiple: Number((valueSavedUsd / tokenCostUsd).toFixed(0))
+        }
+    };
+}
 
-CRITICAL — Always structure your response in EXACTLY this format, with each section clearly labeled on its own line:
+function escapeHtml(text) {
+    return String(text).replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
+}
 
-ROOT CAUSE:
-[Your root cause analysis here]
+function renderQueue() {
+    queueListEl.innerHTML = operationsQueues.map(item => `
+        <button class="queue-card ${item.id === selectedQueueId ? 'selected' : ''}" data-id="${item.id}">
+            <strong>${item.tradeId} · ${item.counterparty}</strong>
+            <small>${item.id} · ${item.sourceSystem} · ${item.lifecycleStage} · risk ${item.riskWeight}</small>
+            <p>${item.issue}</p>
+        </button>
+    `).join('');
+    queueListEl.querySelectorAll('.queue-card').forEach(card => {
+        card.addEventListener('click', () => {
+            selectedQueueId = card.dataset.id;
+            renderCommandCenter(false);
+        });
+    });
+}
 
-METAPHOR:
-[A street-smart analogy that makes the concept click]
+function renderReport() {
+    const item = operationsQueues.find(q => q.id === selectedQueueId) || getFirstEngagementCandidate();
+    const report = runFirstEngagement(item);
+    reportEl.innerHTML = `
+        <div class="report-card">
+            <span class="section-label ${report.autoExecutable ? 'status-ready' : ''}">${report.status}</span>
+            <strong>${item.tradeId} / ${item.lifecycleStage}</strong>
+            <p style="color:#aaa;font-size:12px;line-height:1.55;">${report.mission}</p>
+            <div class="metrics">
+                <div class="metric"><span>Confidence</span><strong>${report.confidence}</strong></div>
+                <div class="metric"><span>Minutes Saved</span><strong>${report.economics.minutesSaved}</strong></div>
+                <div class="metric"><span>ROI</span><strong>${report.economics.roiMultiple}x</strong></div>
+            </div>
+        </div>
+        <div class="report-card">
+            <span class="section-label">CTO Runbook</span>
+            <ol class="compact-list">${report.actions.map(action => `<li>${escapeHtml(action)}</li>`).join('')}</ol>
+        </div>
+        <div class="report-card">
+            <span class="section-label">CFO Controls</span>
+            <ol class="compact-list">${report.controls.map(control => `<li>${escapeHtml(control)}</li>`).join('')}</ol>
+        </div>
+    `;
+}
 
-WHAT TO CHECK:
-[Step-by-step checklist — specific, actionable, numbered]
+function renderCommandCenter(announce = true) {
+    renderQueue();
+    renderReport();
+    if (announce) addExecutiveBubble();
+}
 
-BOB INSIGHT:
-[Your sharp, punchy final take — like advice from your most experienced floor colleague]
+function addExecutiveBubble() {
+    const item = operationsQueues.find(q => q.id === selectedQueueId) || getFirstEngagementCandidate();
+    const report = runFirstEngagement(item);
+    addBobBubble(`[CEO]: Execute ${item.id} now. Freeze scope until this ${item.lifecycleStage.toLowerCase()} repair is safely ready for maker-checker release.
 
-Talk like a street-smart peer from Bengaluru. Be punchy, witty, and helpful. Never give generic answers — always tie to real IB Ops systems: SWIFT, Murex, TLM, Bloomberg, FX, reconciliation.`
+[CTO]: ${report.actions.join(' ')}
+
+[CFO]: ${report.controls[0]} Metric proved: ${report.economics.minutesSaved} minutes saved, $${report.economics.tokenCostUsd} token cost, ${report.economics.roiMultiple}x ROI.`);
+}
+
+function setMode(mode, evt) {
+    msgEl.placeholder = placeholders[mode];
+    msgEl.value = prefill[mode];
+    msgEl.focus();
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active-mode'));
+    if (evt?.target) evt.target.classList.add('active-mode');
+    if (mode === 'engagement') {
+        document.getElementById('first-engagement').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        addExecutiveBubble();
     }
-];
-let loading = false;
+}
 
 window.onload = () => {
+    renderCommandCenter(false);
     setTimeout(() => {
-        addPlainBubble("Namaskara! 🧠 I'm BOB. Let's get straight to it — are we fixing a crisis on the floor today, or building you a CV that recruiters can't ignore?");
-    }, 800);
+        addPlainBubble("Namaskara! 🧠 I'm BOB. The First Engagement command center is live above. We can run the FX CLS repair demo, solve an Ops crisis, or sharpen your IB Ops career story.");
+    }, 500);
 };
 
 async function sendMessage(){
@@ -209,34 +472,31 @@ function addUserBubble(text) {
     chatEl.scrollTop = chatEl.scrollHeight;
 }
 
-// TWEAK 2: Parse and render BOB's 4-part structured response
 function addBobBubble(text) {
-    const sections = [
+    const executiveSections = [
+        { key: "\\[CEO\\]", label: "CEO" },
+        { key: "\\[CTO\\]", label: "CTO" },
+        { key: "\\[CFO\\]", label: "CFO" }
+    ];
+    const opsSections = [
         { key: "ROOT CAUSE", label: "Root Cause" },
         { key: "METAPHOR", label: "Metaphor" },
         { key: "WHAT TO CHECK", label: "What To Check" },
         { key: "BOB INSIGHT", label: "BOB Insight" }
     ];
+    const executiveParsed = parseSections(text, executiveSections, true);
+    const opsParsed = parseSections(text, opsSections, false);
+    const parsed = Object.keys(executiveParsed).length >= 2 ? { sections: executiveSections, values: executiveParsed } : { sections: opsSections, values: opsParsed };
 
-    // Try to parse structured format
-    let parsed = {};
-    let remaining = text;
-    sections.forEach(s => {
-        const regex = new RegExp(s.key + ":\\s*([\\s\\S]*?)(?=" + sections.map(x => x.key + ":").join("|") + "|$)", "i");
-        const match = remaining.match(regex);
-        if (match) parsed[s.key] = match[1].trim();
-    });
-
-    const hasStructure = Object.keys(parsed).length >= 2;
-
-    if (hasStructure) {
+    if (Object.keys(parsed.values).length >= 2) {
         const wrapper = document.createElement("div");
         wrapper.className = "msg bob";
-        sections.forEach(s => {
-            if (parsed[s.key]) {
+        parsed.sections.forEach(s => {
+            const labelKey = s.label.toUpperCase();
+            if (parsed.values[labelKey]) {
                 const sec = document.createElement("div");
                 sec.className = "bob-section";
-                sec.innerHTML = `<span class="bob-section-label">${s.label}</span><div class="bob-section-text">${parsed[s.key].replace(/\n/g, '<br>')}</div>`;
+                sec.innerHTML = `<span class="bob-section-label">${s.label}</span><div class="bob-section-text">${escapeHtml(parsed.values[labelKey]).replace(/\n/g, '<br>')}</div>`;
                 wrapper.appendChild(sec);
             }
         });
@@ -247,14 +507,22 @@ function addBobBubble(text) {
     chatEl.scrollTop = chatEl.scrollHeight;
 }
 
-function addPlainBubble(text) {
-    const div = document.createElement("div");
-    div.className = "bob-plain";
-    div.textContent = "BOB: " + text;
-    chatEl.appendChild(div);
-    chatEl.scrollTop = chatEl.scrollHeight;
+function parseSections(text, sections, bracketed) {
+    const parsed = {};
+    sections.forEach(s => {
+        const prefix = bracketed ? `${s.key}:?` : `${s.key}:`;
+        const lookahead = sections.map(x => bracketed ? `${x.key}:?` : `${x.key}:`).join('|');
+        const regex = new RegExp(prefix + "\\s*([\\s\\S]*?)(?=" + lookahead + "|$)", "i");
+        const match = text.match(regex);
+        if (match) parsed[s.label.toUpperCase()] = match[1].trim();
+    });
+    return parsed;
 }
 
+runEngagementBtn.onclick = () => {
+    renderCommandCenter(true);
+    chatEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
 btnEl.onclick = sendMessage;
 msgEl.onkeypress = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
 </script>

@@ -1,25 +1,20 @@
-# BOB Career DNA Engine v0.1
+# BOB First Engagement Command Center v0.2
 
-BOB Career DNA Engine is a local-first Next.js prototype for reconstructing likely banking operations exposure from resume content and job history. It is **not an ATS** and it does not rank candidates by keyword stuffing. Instead, it demonstrates mocked inference across employer history, operating function, asset class, responsibility language, and recruiter screening signals.
+BOB (Back Office Brains) is a local-first Next.js prototype for proving the first controlled Investment Banking Operations automation engagement. The app now focuses on trade lifecycle and Murex-style operational breaks instead of resume inference.
 
-## Features
+## What this build proves
 
-- Premium dark navy interface with gold accents.
-- Job description textarea.
-- Resume upload for `.txt` and `.pdf`, plus direct resume paste support.
-- Local mock inference logic with no API dependency.
-- Internal knowledge base for Wells Fargo, State Street, JPMorgan, Goldman Sachs, Broadridge, Accenture, and Deutsche Bank.
-- Recruiter-style Career DNA report card with:
-  - Company names
-  - Job titles
-  - Years of experience
-  - Locations
-  - Responsibilities
-  - Likely asset class
-  - Explicit skills
-  - Inferred skills
-  - Confidence score
-  - Reasoning and screening notes
+- A mock Murex / IB Ops queue with FX settlement, equity reconciliation, and OTC confirmation breaks.
+- Deterministic BOB triage that selects the highest-risk queue item for first engagement.
+- CTO runbooks showing the exact automation steps BOB would perform.
+- CFO controls that prevent unsafe book mutation and preserve maker-checker evidence.
+- Unit economics showing manual minutes saved, token cost, labor-value saved, and ROI multiple.
+- A unified CEO / CTO / CFO stand-up strip to keep execution focused on the first successful engagement.
+- Integration into the existing `public/index.html` BOB chat app so GitHub/Vercel users see the command center and chat copilot in the same surface.
+
+## First engagement target
+
+The default first engagement is `FX-CLS-001`: a Murex MX.3 FX spot settlement break where CLS release is blocked by a missing counterparty SSI BIC on the outbound MT300 confirmation. BOB enriches the approved static data, rebuilds the confirmation payload, and routes the repair for maker-checker release before cut-off.
 
 ## Run locally
 
@@ -38,4 +33,4 @@ npm run build
 
 ## Prototype note
 
-PDF handling in v0.1 is intentionally lightweight and local. Selectable-text PDFs may provide extractable text through the browser; pasted resume text or `.txt` files produce the best mock inference results.
+This is a controlled prototype with dummy queue data. It does not connect to production Murex, SWIFT, CLS, broker, or custody systems. The goal is to demonstrate the first safe automation engagement pattern before integrating live adapters.
