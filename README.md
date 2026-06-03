@@ -10,6 +10,7 @@ BOB (Back Office Brains) is a local-first Next.js prototype for proving the firs
 - CFO controls that prevent unsafe book mutation and preserve maker-checker evidence.
 - Unit economics showing manual minutes saved, token cost, labor-value saved, and ROI multiple.
 - A unified CEO / CTO / CFO stand-up strip to keep execution focused on the first successful engagement.
+- Integration into the existing `public/index.html` BOB chat app so GitHub/Vercel users see the command center and chat copilot in the same surface.
 
 ## First engagement target
 
